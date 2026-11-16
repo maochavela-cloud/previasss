@@ -1,0 +1,2738 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>¿A Favor o En Contra? — Edición Previa Multijugador</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fraunces (Display Serif) & Plus Jakarta Sans (Clean UI) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800;9..144,900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tone.js para efectos de sonido sutiles -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Fraunces', 'Georgia', 'serif'],
+                    },
+                    colors: {
+                        wine: '#930400',
+                        milk: '#FFF7E6',
+                        heavenly: '#95BAEB',
+                    },
+                    boxShadow: {
+                        'retro': '6px 6px 0px #930400',
+                        'retro-sm': '3px 3px 0px #930400',
+                        'retro-lg': '8px 8px 0px #930400',
+                        'retro-milk': '4px 4px 0px #FFF7E6',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --color-wine: #930400;
+            --color-milk: #FFF7E6;
+            --color-heavenly: #95BAEB;
+        }
+
+        body {
+            background-color: var(--color-milk);
+            color: var(--color-wine);
+            min-height: 100dvh;
+            overscroll-behavior-y: none;
+            -webkit-tap-highlight-color: transparent;
+            background-image: radial-gradient(rgba(147, 4, 0, 0.08) 1px, transparent 0);
+            background-size: 20px 20px;
+        }
+
+        @keyframes cardEnter {
+            0% { opacity: 0; transform: translateY(16px) scale(0.97) rotate(-1deg); }
+            100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+        }
+
+        @keyframes pulseSoft {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+        }
+
+        .animate-card-enter {
+            animation: cardEnter 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .animate-pulse-soft {
+            animation: pulseSoft 2s infinite ease-in-out;
+        }
+
+        .btn-retro {
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+        }
+        .btn-retro:active:not(:disabled) {
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px #930400 !important;
+        }
+        .btn-retro:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="flex flex-col justify-between selection:bg-heavenly selection:text-wine">
+
+    <!-- ==================== HEADER EDITORIAL (WINE) ==================== -->
+    <header class="w-full bg-wine text-milk border-b-2 border-wine sticky top-0 z-30">
+        <div class="max-w-md mx-auto px-4 py-2.5 flex items-center justify-between gap-2">
+            <button id="btn-home" class="flex items-center gap-2.5 text-left group focus:outline-none">
+                <span class="w-8 h-8 rounded-lg bg-milk text-wine font-serif font-black text-lg flex items-center justify-center border border-milk group-hover:bg-heavenly transition-colors">
+                    ?
+                </span>
+                <div>
+                    <span class="font-serif font-black text-base tracking-tight block leading-none text-milk">
+                        ¿A Favor o En Contra?
+                    </span>
+                    <span id="header-subtitle" class="text-[10px] uppercase tracking-widest text-heavenly font-bold">
+                        Edición Previa • Multijugador
+                    </span>
+                </div>
+            </button>
+
+            <div class="flex items-center gap-1.5">
+                <!-- Botón Compatibilidad (Visible en sala) -->
+                <button id="btn-header-compat" class="hidden px-2.5 py-1.5 rounded-lg bg-milk text-wine font-extrabold text-[11px] uppercase tracking-wider border border-milk hover:bg-heavenly transition flex items-center gap-1">
+                    <span>♥</span>
+                    <span>Afinidad</span>
+                </button>
+
+                <!-- Botón Sonido -->
+                <button id="btn-sound" aria-label="Sonido" class="p-2 rounded-lg bg-milk/10 hover:bg-milk/20 text-milk border border-milk/30 transition">
+                    <svg id="icon-sound-on" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                    </svg>
+                    <svg id="icon-sound-off" class="w-4 h-4 hidden opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
+                    </svg>
+                </button>
+
+                <!-- Botón Reglas -->
+                <button id="btn-open-rules" class="px-2.5 py-1.5 rounded-lg bg-heavenly text-wine font-extrabold text-[11px] uppercase tracking-wider border border-milk hover:bg-milk transition">
+                    Reglas
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
+    <main class="w-full max-w-md mx-auto px-4 flex-1 flex flex-col justify-center py-4 relative">
+
+        <!-- ================================================================
+             VISTA 1: INICIO (CREAR O UNIRSE A SALA)
+        ================================================================ -->
+        <section id="screen-home" class="flex flex-col items-center text-center space-y-4 animate-card-enter">
+            
+            <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-heavenly text-wine border-2 border-wine text-xs font-extrabold uppercase tracking-wider shadow-retro-sm">
+                <span>🍷</span> Debate en vivo + Test de compatibilidad
+            </div>
+
+            <div class="space-y-1.5">
+                <h1 class="font-serif font-black text-4xl sm:text-5xl tracking-tight leading-[1.02] text-wine">
+                    ¿A Favor o<br>En Contra?
+                </h1>
+                <p class="text-wine/85 text-xs sm:text-sm max-w-xs mx-auto font-medium leading-snug">
+                    Entren todos desde su celu con un código de sala, voten sin filtro y descubran quiénes son almas gemelas en la previa.
+                </p>
+            </div>
+
+            <!-- Tarjeta de Acceso Multijugador -->
+            <div class="w-full bg-milk border-2 border-wine rounded-2xl p-4 sm:p-5 shadow-retro space-y-4 text-left">
+                
+                <!-- Paso 1: Apodo -->
+                <div>
+                    <label for="input-player-name" class="block text-xs font-extrabold uppercase tracking-wider text-wine mb-1.5">
+                        1. Tu nombre o apodo
+                    </label>
+                    <input id="input-player-name" type="text" maxlength="16" placeholder="Ej: Sofi, Lucas, El Tano..."
+                        class="w-full px-3.5 py-3 rounded-xl bg-milk border-2 border-wine text-base font-bold text-wine placeholder-wine/40 focus:outline-none focus:bg-heavenly/25 transition">
+                </div>
+
+                <!-- Paso 2: Crear Sala -->
+                <div class="pt-1">
+                    <button id="btn-create-room" class="w-full py-3.5 px-5 rounded-xl font-serif font-black text-lg tracking-wide text-milk bg-wine border-2 border-wine shadow-retro-sm btn-retro flex items-center justify-center gap-2">
+                        <span>Crear Sala Nueva</span>
+                        <span>→</span>
+                    </button>
+                </div>
+
+                <!-- Separador -->
+                <div class="relative flex py-1 items-center">
+                    <div class="flex-grow border-t-2 border-wine/20"></div>
+                    <span class="flex-shrink mx-3 text-[11px] font-extrabold uppercase tracking-widest text-wine/60">o unite a una sala</span>
+                    <div class="flex-grow border-t-2 border-wine/20"></div>
+                </div>
+
+                <!-- Paso 3: Unirse con código -->
+                <div class="flex gap-2">
+                    <input id="input-room-code" type="text" maxlength="4" placeholder="CÓDIGO" autocapitalize="characters"
+                        class="w-28 px-3 py-3 rounded-xl bg-milk border-2 border-wine text-center font-serif font-black text-lg uppercase tracking-widest text-wine placeholder-wine/35 focus:outline-none focus:bg-heavenly/25">
+                    <button id="btn-join-room" class="flex-1 py-3 px-4 rounded-xl bg-heavenly text-wine border-2 border-wine shadow-retro-sm btn-retro font-serif font-black text-base">
+                        Entrar a Sala
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modo Local / Pass & Play (Un solo dispositivo) -->
+            <button id="btn-start-local" class="w-full py-2.5 px-4 rounded-xl bg-milk border-2 border-wine text-xs font-extrabold uppercase tracking-wider text-wine hover:bg-heavenly/40 transition btn-retro">
+                📱 Jugar en un solo celular (Modo Pass & Play)
+            </button>
+        </section>
+
+        <!-- ================================================================
+             VISTA 2: LOBBY / SALA DE ESPERA EN VIVO
+        ================================================================ -->
+        <section id="screen-lobby" class="hidden flex-col space-y-4 animate-card-enter">
+            
+            <!-- Caja Código de Sala + Compartir -->
+            <div class="bg-wine text-milk border-2 border-wine rounded-2xl p-4 shadow-retro text-center space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-extrabold uppercase tracking-widest text-heavenly">Código de Sala</span>
+                    <span id="lobby-connection-badge" class="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-milk/15 text-milk">
+                        <span class="w-2 h-2 rounded-full bg-heavenly animate-ping"></span> En vivo
+                    </span>
+                </div>
+
+                <div class="py-1">
+                    <div id="lobby-room-code" class="font-serif font-black text-5xl tracking-[0.2em] text-milk select-all pl-2">
+                        VINO
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <button id="btn-copy-code" class="py-2.5 px-3 rounded-xl bg-milk text-wine font-extrabold text-xs uppercase tracking-wider border border-milk hover:bg-heavenly transition">
+                        Copiar Código
+                    </button>
+                    <button id="btn-share-link" class="py-2.5 px-3 rounded-xl bg-heavenly text-wine font-extrabold text-xs uppercase tracking-wider border border-heavenly hover:bg-milk transition">
+                        Compartir Link
+                    </button>
+                </div>
+            </div>
+
+            <!-- Jugadores Conectados -->
+            <div class="bg-milk border-2 border-wine rounded-2xl p-4 shadow-retro space-y-3">
+                <div class="flex items-center justify-between border-b-2 border-wine/15 pb-2">
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-wine">En la previa</span>
+                    <span id="lobby-player-count" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-heavenly text-wine border border-wine">
+                        1 jugador
+                    </span>
+                </div>
+
+                <div id="lobby-players-list" class="flex flex-wrap gap-2">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Configuración del Mazo (Solo Host puede cambiar, invitados ven selección) -->
+            <div class="bg-milk border-2 border-wine rounded-2xl p-4 shadow-retro space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-wine">Temática del Mazo</span>
+                    <span id="lobby-host-hint" class="text-[11px] font-bold text-wine/70">Elegís vos</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2" id="lobby-categories">
+                    <button data-cat="todas" class="lobby-cat-btn p-2.5 rounded-xl border-2 border-wine bg-heavenly text-wine text-left transition">
+                        <div class="font-serif font-extrabold text-sm leading-tight">Todo Mezclado</div>
+                        <div id="lobby-count-todas" class="text-[10px] font-semibold opacity-80">+1.080 cartas</div>
+                    </button>
+                    <button data-cat="pareja" class="lobby-cat-btn p-2.5 rounded-xl border-2 border-wine/30 bg-milk text-wine text-left transition">
+                        <div class="font-serif font-extrabold text-sm leading-tight">Pareja e Infidelidad</div>
+                        <div id="lobby-count-pareja" class="text-[10px] font-semibold opacity-75">Celos, ex y claves</div>
+                    </button>
+                    <button data-cat="amistad" class="lobby-cat-btn p-2.5 rounded-xl border-2 border-wine/30 bg-milk text-wine text-left transition">
+                        <div class="font-serif font-extrabold text-sm leading-tight">Amistad y Códigos</div>
+                        <div id="lobby-count-amistad" class="text-[10px] font-semibold opacity-75">Lealtad y grupo</div>
+                    </button>
+                    <button data-cat="redes" class="lobby-cat-btn p-2.5 rounded-xl border-2 border-wine/30 bg-milk text-wine text-left transition">
+                        <div class="font-serif font-extrabold text-sm leading-tight">Redes y Tecnología</div>
+                        <div id="lobby-count-redes" class="text-[10px] font-semibold opacity-75">Visto, IG e IA</div>
+                    </button>
+                    <button data-cat="salidas" class="lobby-cat-btn p-2.5 rounded-xl border-2 border-wine/30 bg-milk text-wine text-left transition">
+                        <div class="font-serif font-extrabold text-sm leading-tight">Salidas, Previa y Citas</div>
+                        <div id="lobby-count-salidas" class="text-[10px] font-semibold opacity-75">Citas y noche</div>
+                    </button>
+                    <button data-cat="cotidiano" class="lobby-cat-btn p-2.5 rounded-xl border-2 border-wine/30 bg-milk text-wine text-left transition">
+                        <div class="font-serif font-extrabold text-sm leading-tight">Cotidianos y Plata</div>
+                        <div id="lobby-count-cotidiano" class="text-[10px] font-semibold opacity-75">Guita y calle</div>
+                    </button>
+                    <button data-cat="valores" class="lobby-cat-btn col-span-2 p-2.5 rounded-xl border-2 border-wine/30 bg-milk text-wine text-left transition">
+                        <div class="font-serif font-extrabold text-sm leading-tight">Vida, Familia y Valores</div>
+                        <div id="lobby-count-valores" class="text-[10px] font-semibold opacity-75">Límites, familia y dilemas morales</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Botón Empezar (Host) o Mensaje de Espera (Invitado) -->
+            <div id="lobby-host-controls" class="space-y-2">
+                <button id="btn-lobby-start" class="w-full py-4 px-6 rounded-2xl font-serif font-black text-xl text-milk bg-wine border-2 border-wine shadow-retro btn-retro">
+                    EMPEZAR DEBATE →
+                </button>
+            </div>
+            <div id="lobby-guest-waiting" class="hidden bg-heavenly/40 border-2 border-wine rounded-2xl p-3.5 text-center">
+                <p class="text-xs font-extrabold text-wine animate-pulse-soft">
+                    Esperando a que el anfitrión inicie la partida...
+                </p>
+            </div>
+        </section>
+
+        <!-- ================================================================
+             VISTA 3: MESA DE DEBATE (VOTACIÓN EN VIVO)
+        ================================================================ -->
+        <section id="screen-game" class="hidden flex-col justify-between h-full space-y-3">
+            
+            <!-- Barra superior de sala: Código, Ronda y Botón Compatibilidad -->
+            <div class="flex items-center justify-between gap-2 bg-milk border-2 border-wine rounded-xl px-3 py-2 shadow-retro-sm">
+                <div class="flex items-center gap-2">
+                    <span id="game-room-badge" class="px-2 py-0.5 rounded bg-wine text-milk font-serif font-black text-xs tracking-wider">
+                        SALA: VINO
+                    </span>
+                    <span id="game-round-text" class="text-xs font-extrabold text-wine">
+                        Carta #1
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="btn-open-custom" class="text-xs font-extrabold text-wine underline decoration-2 underline-offset-2 hover:opacity-75">
+                        + Dilema
+                    </button>
+                </div>
+            </div>
+
+            <!-- TARJETA CENTRAL DE DILEMA -->
+            <div id="dilemma-card" class="bg-milk border-2 border-wine rounded-2xl p-5 sm:p-6 min-h-[265px] flex flex-col justify-between shadow-retro relative overflow-hidden animate-card-enter">
+                
+                <!-- Etiqueta de Categoría -->
+                <div class="flex items-center justify-between gap-2">
+                    <span id="card-category-badge" class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-heavenly text-wine border border-wine">
+                        PAREJA E INFIDELIDAD
+                    </span>
+                    <span id="card-custom-tag" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-wine text-milk">
+                        De la mesa
+                    </span>
+                </div>
+
+                <!-- Pregunta / Dilema -->
+                <div class="my-5">
+                    <h2 id="card-question" class="font-serif font-black text-2xl sm:text-[26px] leading-[1.2] text-wine tracking-tight">
+                        ¿Darle like a fotos viejas de un ex en Instagram estando en pareja?
+                    </h2>
+                </div>
+
+                <!-- ZONA A: Estado mientras votan (Oculta resultados) -->
+                <div id="voting-status-box" class="space-y-2.5 pt-3 border-t-2 border-wine/15">
+                    <div class="flex items-center justify-between text-xs font-extrabold text-wine">
+                        <span id="votes-progress-label">0 de 1 votaron</span>
+                        <span class="text-[11px] text-wine/70">Voto secreto hasta revelar</span>
+                    </div>
+                    <!-- Avatares de quienes ya votaron -->
+                    <div id="voters-avatars-row" class="flex flex-wrap gap-1.5">
+                        <!-- Chips dinámicos -->
+                    </div>
+                </div>
+
+                <!-- ZONA B: Resultados Revelados (Barra dividida + Listas de nombres) -->
+                <div id="revealed-results-box" class="hidden space-y-3 pt-3 border-t-2 border-wine/15">
+                    <div class="flex justify-between items-center text-xs font-extrabold text-wine">
+                        <span>A FAVOR: <span id="rev-favor-pct" class="text-sm">50%</span> (<span id="rev-favor-num">0</span>)</span>
+                        <span>(<span id="rev-contra-num">0</span>) <span id="rev-contra-pct" class="text-sm">50%</span> :EN CONTRA</span>
+                    </div>
+
+                    <!-- Barra Bicolor Heavenly vs Wine -->
+                    <div class="w-full h-4 bg-milk rounded-full overflow-hidden flex border-2 border-wine">
+                        <div id="rev-favor-bar" class="h-full bg-heavenly transition-all duration-500 border-r border-wine" style="width: 50%"></div>
+                        <div id="rev-contra-bar" class="h-full bg-wine transition-all duration-500" style="width: 50%"></div>
+                    </div>
+
+                    <!-- Quién votó cada cosa -->
+                    <div class="grid grid-cols-2 gap-2 pt-1 text-[11px]">
+                        <div class="bg-heavenly/35 border border-wine rounded-xl p-2">
+                            <div class="font-extrabold uppercase text-wine mb-1">A Favor:</div>
+                            <div id="list-voted-favor" class="font-semibold text-wine leading-snug">—</div>
+                        </div>
+                        <div class="bg-wine/10 border border-wine rounded-xl p-2">
+                            <div class="font-extrabold uppercase text-wine mb-1">En Contra:</div>
+                            <div id="list-voted-contra" class="font-semibold text-wine leading-snug">—</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTONES DE VOTO DEL JUGADOR -->
+            <div id="player-vote-buttons" class="grid grid-cols-2 gap-3">
+                <button id="btn-vote-favor" class="py-4 px-3 rounded-2xl bg-heavenly text-wine border-2 border-wine shadow-retro-sm btn-retro font-serif font-black text-lg sm:text-xl flex flex-col items-center justify-center leading-tight">
+                    <span>A FAVOR</span>
+                    <span id="badge-my-favor" class="font-sans text-[10px] font-extrabold uppercase tracking-wider opacity-75 mt-0.5">Tocar para votar</span>
+                </button>
+
+                <button id="btn-vote-contra" class="py-4 px-3 rounded-2xl bg-wine text-milk border-2 border-wine shadow-retro-sm btn-retro font-serif font-black text-lg sm:text-xl flex flex-col items-center justify-center leading-tight">
+                    <span>EN CONTRA</span>
+                    <span id="badge-my-contra" class="font-sans text-[10px] font-extrabold uppercase tracking-wider text-heavenly mt-0.5">Tocar para votar</span>
+                </button>
+            </div>
+
+            <!-- CONTROLES DEL ANFITRIÓN + COMPATIBILIDAD -->
+            <div class="space-y-2 pt-0.5">
+                <!-- Controles exclusivos del Anfitrión -->
+                <div id="host-action-bar" class="grid grid-cols-2 gap-2.5">
+                    <button id="btn-reveal-votes" class="py-3.5 px-3 rounded-xl bg-milk text-wine border-2 border-wine shadow-retro-sm btn-retro font-extrabold text-xs uppercase tracking-wider">
+                        👁 Revelar Votos
+                    </button>
+                    <button id="btn-next-card" class="py-3.5 px-3 rounded-xl bg-wine text-milk border-2 border-wine shadow-retro-sm btn-retro font-serif font-black text-base">
+                        Siguiente →
+            <!-- Modo Local / Pass & Play (Un solo dispositivo) -->
+            <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button id="btn-open-manager" class="w-full py-2.5 px-3 rounded-xl bg-heavenly/65 border-2 border-wine text-[11px] font-extrabold uppercase tracking-wider text-wine hover:bg-heavenly transition btn-retro">
+                    ✎ Editar Tópicos (<span id="home-total-topics">1.080</span>)
+                </button>
+            </div>
+        </section>
+
+        <!-- ================================================================
+             VISTA 4: MODO LOCAL PASS & PLAY (FALLBACK UN SOLO CELULAR)
+        ================================================================ -->
+        <section id="screen-local" class="hidden flex-col justify-between h-full space-y-3 animate-card-enter">
+            <div class="flex items-center justify-between gap-2">
+                <span class="px-2.5 py-1 rounded-full bg-heavenly border border-wine text-[11px] font-extrabold text-wine">Modo 1 Celular</span>
+                <select id="local-cat-select" class="px-2.5 py-1 rounded-xl bg-milk border-2 border-wine text-[11px] font-extrabold text-wine focus:outline-none">
+                    <option value="todas">Todo Mezclado</option>
+                    <option value="pareja">Pareja e Infidelidad</option>
+                    <option value="amistad">Amistad y Códigos</option>
+                    <option value="redes">Redes y Tecnología</option>
+                    <option value="salidas">Salidas, Previa y Citas</option>
+                    <option value="cotidiano">Cotidianos y Plata</option>
+                    <option value="valores">Vida, Familia y Valores</option>
+                </select>
+                <span id="local-progress-text" class="text-[11px] font-extrabold text-wine">Carta 1 de 1.080</span>
+            </div>
+
+            <div class="bg-milk border-2 border-wine rounded-2xl p-6 min-h-[270px] flex flex-col justify-between shadow-retro">
+                <span id="local-cat-badge" class="self-start px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-heavenly text-wine border border-wine">
+                    PAREJA E INFIDELIDAD
+                </span>
+                <h2 id="local-question" class="font-serif font-black text-2xl leading-[1.2] text-wine my-5">
+                    ¿Revisar el celular de tu pareja si tenés sospechas reales?
+                </h2>
+                <div class="space-y-2 pt-3 border-t-2 border-wine/15">
+                    <div class="flex justify-between text-xs font-extrabold">
+                        <span>A FAVOR: <span id="local-favor-count">0</span></span>
+                        <span><span id="local-contra-count">0</span> :EN CONTRA</span>
+                    </div>
+                    <div class="w-full h-4 bg-milk rounded-full overflow-hidden flex border-2 border-wine">
+                        <div id="local-favor-bar" class="h-full bg-heavenly transition-all duration-300 border-r border-wine" style="width: 50%"></div>
+                        <div id="local-contra-bar" class="h-full bg-wine transition-all duration-300" style="width: 50%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button id="btn-local-favor" class="py-4 rounded-2xl bg-heavenly text-wine border-2 border-wine shadow-retro-sm btn-retro font-serif font-black text-lg">
+                    A FAVOR (+1)
+                </button>
+                <button id="btn-local-contra" class="py-4 rounded-2xl bg-wine text-milk border-2 border-wine shadow-retro-sm btn-retro font-serif font-black text-lg">
+                    EN CONTRA (+1)
+                </button>
+            </div>
+
+            <button id="btn-local-next" class="w-full py-3.5 rounded-xl bg-milk text-wine border-2 border-wine shadow-retro-sm btn-retro font-serif font-black text-base">
+                Siguiente Carta →
+            </button>
+        </section>
+
+    </main>
+
+    <!-- ==================== FOOTER EDITORIAL (HEAVENLY) ==================== -->
+    <footer class="w-full bg-heavenly text-wine border-t-2 border-wine py-2 px-4 text-center">
+        <p class="text-[11px] font-extrabold uppercase tracking-wider">
+            ¿A Favor o En Contra? • Voten en vivo y descubran quiénes piensan igual
+        </p>
+    </footer>
+
+    <!-- ================================================================
+         MODAL 1: PANEL DE COMPATIBILIDAD DE RESPUESTAS
+    ================================================================ -->
+    <div id="modal-compatibility" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-wine/80 backdrop-blur-xs">
+        <div class="bg-milk w-full max-w-md max-h-[88dvh] flex flex-col rounded-2xl border-2 border-wine shadow-retro-lg animate-card-enter overflow-hidden">
+            
+            <!-- Cabecera Modal -->
+            <div class="bg-wine text-milk px-5 py-4 flex items-center justify-between border-b-2 border-wine shrink-0">
+                <div>
+                    <h3 class="font-serif font-black text-xl leading-none">Compatibilidad</h3>
+                    <p id="compat-subtitle" class="text-[11px] text-heavenly font-bold mt-1">
+                        Basado en respuestas reveladas
+                    </p>
+                </div>
+                <button id="btn-close-compat" class="w-8 h-8 rounded-lg bg-milk text-wine font-black flex items-center justify-center">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Cuerpo Scrollable -->
+            <div id="compat-body" class="p-5 overflow-y-auto space-y-5 flex-1">
+                <!-- Contenido generado dinámicamente -->
+            </div>
+
+            <!-- Pie Modal -->
+            <div class="p-4 border-t-2 border-wine/15 bg-milk shrink-0">
+                <button id="btn-done-compat" class="w-full py-3 rounded-xl bg-wine text-milk font-serif font-black text-base border-2 border-wine shadow-retro-sm btn-retro">
+                    Volver al Debate
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         MODAL 2: AGREGAR DILEMA PROPIO A LA SALA
+    ================================================================ -->
+    <div id="modal-custom-card" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-wine/80 backdrop-blur-xs">
+        <div class="bg-milk w-full max-w-sm rounded-2xl p-6 space-y-4 border-2 border-wine shadow-retro-lg animate-card-enter">
+            <div class="flex items-center justify-between border-b-2 border-wine/15 pb-3">
+                <h3 class="font-serif font-black text-2xl text-wine">Sumar Dilema</h3>
+                <button id="btn-close-custom" class="w-8 h-8 rounded-lg bg-wine text-milk font-bold flex items-center justify-center">✕</button>
+            </div>
+
+            <form id="form-custom-card" class="space-y-4">
+                <div>
+                    <label for="custom-category" class="block text-xs font-extrabold uppercase tracking-wider text-wine mb-1.5">Categoría</label>
+                    <select id="custom-category" class="w-full px-3.5 py-2.5 rounded-xl bg-milk border-2 border-wine text-sm font-bold text-wine focus:outline-none">
+                        <option value="pareja">Pareja e Infidelidad</option>
+                        <option value="amistad">Amistad y Códigos</option>
+                        <option value="redes">Redes y Tecnología</option>
+                        <option value="salidas">Salidas, Previa y Citas</option>
+                        <option value="cotidiano">Cotidianos y Plata</option>
+                        <option value="valores">Vida, Familia y Valores</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="custom-text" class="block text-xs font-extrabold uppercase tracking-wider text-wine mb-1.5">Tu pregunta para la mesa</label>
+                    <textarea id="custom-text" rows="3" maxlength="180" required placeholder="Ej: ¿Está bien seguir hablando con el ex de un amigo/a?"
+                        class="w-full px-3.5 py-2.5 rounded-xl bg-milk border-2 border-wine text-sm font-semibold text-wine placeholder-wine/40 focus:outline-none resize-none"></textarea>
+                </div>
+
+                <div class="flex gap-2.5">
+                    <button type="button" id="btn-cancel-custom" class="flex-1 py-3 rounded-xl bg-milk border-2 border-wine text-wine text-xs font-extrabold uppercase">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="flex-1 py-3 rounded-xl bg-wine text-milk border-2 border-wine shadow-retro-sm btn-retro font-serif font-black text-base">
+                        Tirar a la mesa
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         MODAL 3: REGLAS DEL JUEGO
+    ================================================================ -->
+    <div id="modal-rules" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-wine/80 backdrop-blur-xs">
+        <div class="bg-milk w-full max-w-sm rounded-2xl p-6 space-y-4 border-2 border-wine shadow-retro-lg animate-card-enter">
+            <div class="flex items-center justify-between border-b-2 border-wine/15 pb-3">
+                <h3 class="font-serif font-black text-2xl text-wine">Cómo se juega</h3>
+                <button id="btn-close-rules" class="w-8 h-8 rounded-lg bg-wine text-milk font-bold flex items-center justify-center">✕</button>
+            </div>
+
+            <ul class="space-y-3 text-sm text-wine font-medium">
+                <li class="flex items-start gap-3">
+                    <span class="w-6 h-6 rounded-full bg-heavenly border border-wine text-wine font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+                    <span><strong>Todos adentro:</strong> Uno crea la sala y comparte el código de 4 letras o el link directo.</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="w-6 h-6 rounded-full bg-heavenly border border-wine text-wine font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+                    <span><strong>Voto secreto:</strong> Cada uno vota en su celular <strong>A Favor</strong> o <strong>En Contra</strong> sin que los demás vean qué eligió.</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="w-6 h-6 rounded-full bg-heavenly border border-wine text-wine font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+                    <span><strong>Revelar y debatir:</strong> El anfitrión toca <em>Revelar Votos</em>, salen los nombres a la luz y la minoría defiende su postura.</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="w-6 h-6 rounded-full bg-wine text-milk font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">♥</span>
+                    <span><strong>Compatibilidad en vivo:</strong> Después de varias cartas, abran <em>Afinidad</em> para ver quiénes son el Match Supremo y quiénes son Polos Opuestos.</span>
+                </li>
+            </ul>
+
+            <button id="btn-got-it-rules" class="w-full py-3 rounded-xl bg-wine text-milk font-serif font-black text-base border-2 border-wine shadow-retro-sm btn-retro">
+                ¡Listo, a jugar!
+            </button>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         MODAL 4: GESTOR Y EDITOR DE TÓPICOS (+1.080)
+    ================================================================ -->
+    <div id="modal-topic-manager" class="fixed inset-0 z-50 hidden items-center justify-center p-2 sm:p-4 bg-wine/85 backdrop-blur-xs">
+        <div class="bg-milk w-full max-w-2xl h-[92dvh] flex flex-col rounded-2xl border-2 border-wine shadow-retro-lg animate-card-enter overflow-hidden">
+            
+            <!-- Cabecera -->
+            <div class="bg-wine text-milk px-4 sm:px-5 py-3.5 flex items-center justify-between border-b-2 border-wine shrink-0">
+                <div>
+                    <h3 class="font-serif font-black text-xl leading-none">Editor del Mazo</h3>
+                    <p id="mgr-subtitle" class="text-[11px] text-heavenly font-bold mt-1">
+                        1.080 tópicos únicos activos • Sin repeticiones
+                    </p>
+                </div>
+                <button id="btn-close-manager" class="w-8 h-8 rounded-lg bg-milk text-wine font-black flex items-center justify-center hover:bg-heavenly transition">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Barra de Herramientas: Búsqueda, Filtro y Acciones -->
+            <div class="p-3 sm:p-4 bg-milk border-b-2 border-wine/15 space-y-2.5 shrink-0">
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input id="mgr-search" type="text" placeholder="Buscar palabra clave (ej: ex, plata, visto, cita)..."
+                        class="flex-1 px-3.5 py-2 rounded-xl bg-milk border-2 border-wine text-xs font-bold text-wine placeholder-wine/45 focus:outline-none focus:bg-heavenly/20">
+                    <select id="mgr-filter-cat" class="px-3 py-2 rounded-xl bg-milk border-2 border-wine text-xs font-extrabold text-wine focus:outline-none">
+                        <option value="todas">Todas las categorías</option>
+                        <option value="pareja">Pareja e Infidelidad</option>
+                        <option value="amistad">Amistad y Códigos</option>
+                        <option value="redes">Redes y Tecnología</option>
+                        <option value="salidas">Salidas, Previa y Citas</option>
+                        <option value="cotidiano">Cotidianos y Plata</option>
+                        <option value="valores">Vida, Familia y Valores</option>
+                    </select>
+                </div>
+
+                <!-- Botones de Gestión Masiva y Respaldo -->
+                <div class="flex flex-wrap items-center justify-between gap-1.5">
+                    <button id="btn-mgr-toggle-add" class="px-3 py-1.5 rounded-lg bg-wine text-milk font-extrabold text-[11px] uppercase tracking-wider border border-wine hover:opacity-90 transition">
+                        + Agregar Nuevos
+                    </button>
+
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <button id="btn-mgr-export" class="px-2.5 py-1.5 rounded-lg bg-heavenly text-wine font-extrabold text-[11px] border border-wine hover:bg-heavenly/80 transition">
+                            Exportar .JSON
+                        </button>
+                        <label class="px-2.5 py-1.5 rounded-lg bg-milk text-wine font-extrabold text-[11px] border border-wine hover:bg-heavenly/40 transition cursor-pointer">
+                            Importar .JSON
+                            <input id="input-mgr-import" type="file" accept=".json,application/json" class="hidden">
+                        </label>
+                        <button id="btn-mgr-restore" class="px-2.5 py-1.5 rounded-lg bg-milk text-wine/80 font-extrabold text-[11px] border border-wine/40 hover:border-wine hover:text-wine transition">
+                            Restaurar Original
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Panel Desplegable para Agregar 1 o Varios Tópicos -->
+                <div id="mgr-add-panel" class="hidden bg-heavenly/30 border-2 border-wine rounded-xl p-3 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-extrabold uppercase tracking-wider text-wine">Agregar uno o varios tópicos (1 por línea)</span>
+                        <select id="mgr-add-cat" class="px-2.5 py-1 rounded-lg bg-milk border border-wine text-[11px] font-extrabold text-wine">
+                            <option value="pareja">Pareja e Infidelidad</option>
+                            <option value="amistad">Amistad y Códigos</option>
+                            <option value="redes">Redes y Tecnología</option>
+                            <option value="salidas">Salidas, Previa y Citas</option>
+                            <option value="cotidiano">Cotidianos y Plata</option>
+                            <option value="valores">Vida, Familia y Valores</option>
+                        </select>
+                    </div>
+                    <textarea id="mgr-add-textarea" rows="3" placeholder="Escribí una o varias preguntas (una por renglón)..."
+                        class="w-full px-3 py-2 rounded-xl bg-milk border-2 border-wine text-xs font-semibold text-wine placeholder-wine/45 focus:outline-none resize-none"></textarea>
+                    <div class="flex justify-end gap-2">
+                        <button id="btn-mgr-cancel-add" class="px-3 py-1.5 rounded-lg bg-milk border border-wine text-[11px] font-extrabold text-wine">Cancelar</button>
+                        <button id="btn-mgr-save-add" class="px-4 py-1.5 rounded-lg bg-wine text-milk border border-wine text-[11px] font-extrabold uppercase">Guardar en Mazo</button>
+                    </div>
+                </div>
+
+                <!-- Confirmación inline de Restaurar Mazo Original (sin alert/confirm del navegador) -->
+                <div id="mgr-restore-confirm" class="hidden bg-wine text-milk rounded-xl p-3 flex flex-col sm:flex-row items-center justify-between gap-2">
+                    <span class="text-xs font-bold">¿Seguro querés volver al mazo original de fábrica y borrar tus cambios?</span>
+                    <div class="flex gap-2 shrink-0">
+                        <button id="btn-mgr-restore-no" class="px-3 py-1 rounded-lg bg-milk/15 text-milk text-xs font-extrabold">No</button>
+                        <button id="btn-mgr-restore-yes" class="px-3 py-1 rounded-lg bg-heavenly text-wine text-xs font-extrabold">Sí, restaurar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista Paginada de Tópicos -->
+            <div id="mgr-list-container" class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2">
+                <!-- Items renderizados por página -->
+            </div>
+
+            <!-- Paginación Inferior -->
+            <div class="px-4 py-2.5 bg-milk border-t-2 border-wine/15 flex items-center justify-between text-xs font-extrabold text-wine shrink-0">
+                <button id="btn-mgr-prev-page" class="px-3 py-1.5 rounded-lg bg-milk border-2 border-wine disabled:opacity-40">← Anterior</button>
+                <span id="mgr-page-info">Página 1 de 1 (0 resultados)</span>
+                <button id="btn-mgr-next-page" class="px-3 py-1.5 rounded-lg bg-milk border-2 border-wine disabled:opacity-40">Siguiente →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== NOTIFICACIÓN TOAST ==================== -->
+    <div id="toast" class="fixed bottom-14 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-wine text-milk border-2 border-milk font-extrabold text-xs shadow-retro opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2 whitespace-nowrap">
+        <span class="text-heavenly">★</span>
+        <span id="toast-msg">Mensaje</span>
+    </div>
+
+    <!-- ==================== SCRIPT MULTIJUGADOR & MOTOR DE COMPATIBILIDAD ==================== -->
+    <script type="module">
+
+        /**
+         * 1. GENERADOR Y BANCO DE +1.080 TÓPICOS ÚNICOS EN 6 CATEGORÍAS
+         *    Con deduplicación automática vía Set y persistencia editable en localStorage.
+         */
+        const CATEGORY_LABELS = {
+            pareja: 'PAREJA E INFIDELIDAD',
+            amistad: 'AMISTAD Y CÓDIGOS',
+            redes: 'REDES Y TECNOLOGÍA',
+            salidas: 'SALIDAS, PREVIA Y CITAS',
+            cotidiano: 'COTIDIANOS Y PLATA',
+            valores: 'VIDA, FAMILIA Y VALORES'
+        };
+
+        function buildMasterDeck() {
+            const rawByCategory = {
+                pareja: [
+                    '¿Darle like a fotos viejas de un ex en Instagram estando en pareja?',
+                    '¿Tener un "mejor amigo/a" del sexo opuesto con quien ya hubo historia o tensión?',
+                    '¿Revisar el celular de tu pareja si te da la clave o te da permiso?',
+                    '¿Perdonar un beso en una fiesta si hubo alcohol de por medio y te lo contó al día siguiente?',
+                    '¿Mantener chats archivados con alguien con quien hubo onda antes de ponerte de novio/a?',
+                    '¿Tener cuenta en Tinder o Bumble "solo para chusmear quién está" teniendo pareja?',
+                    '¿Responder historias con fueguitos o emojis sugerentes estando en una relación?',
+                    '¿Mantener una amistad cercana y verse a solas con un/a ex estando en pareja?',
+                    'Si tu pareja te pide que dejes de seguir a alguien porque le genera inseguridad: ¿hay que hacerlo?',
+                    '¿Seguir guardando fotos y videos íntimos o románticos con tu ex en la galería del celular?',
+                    'Estando de novio/a, ¿salir a bailar solo/a con tu grupo de amigos solteros hasta las 6 de la mañana?',
+                    '¿El famoso "permitido" con un famoso/a es un juego inocente o una falta de respeto?',
+                    '¿Contarle los problemas y detalles íntimos de tu pareja a tu grupo de amigos?',
+                    '¿Subir fotos subidas de tono a "Mejores Amigos" de Instagram teniendo pareja?',
+                    '¿Aceptar que alguien te invite un trago en el boliche sabiendo que te está tirando onda?',
+                    '¿Pedir "un tiempo" en la pareja sin que signifique vía libre para estar con otras personas?',
+                    '¿Compartir la ubicación en tiempo real con tu pareja por seguridad y confianza?',
+                    '¿Seguir teniendo en Mejores Amigos de Instagram a alguien con quien tuviste algo casual?',
+                    '¿Irse de vacaciones con amigos/as del sexo opuesto sin tu pareja?',
+                    '¿Ocultar el estado de "en línea" o la última conexión específicamente para tu pareja?',
+                    '¿Coquetear un poco para conseguir tragos gratis o pasar rápido en un boliche teniendo pareja?',
+                    '¿Es infidelidad fantasear con otra persona mientras estás con tu pareja?',
+                    '¿Mandar mensajes borrados o en modo efímero con alguien del trabajo o la facultad?',
+                    '¿Quedarte a dormir en la casa de un amigo/a del sexo opuesto después de una fiesta sin avisar antes?',
+                    '¿Seguir usando un regalo importante (un buzo, un reloj o un perfume) que te dio tu ex?',
+                    '¿Comparar en voz alta a tu pareja actual con un ex durante una discusión?',
+                    '¿Revisar las búsquedas recientes o el historial de Instagram de tu pareja cuando deja el teléfono desbloqueado?',
+                    '¿Tener una conversación súper profunda e íntima de madrugada con alguien que sabés que te tiene ganas?',
+                    '¿Aceptar que tu pareja siga teniendo buena relación con la familia de su ex?',
+                    '¿Es necesario contarle a tu pareja cada vez que un ex te vuelve a escribir?',
+                    '¿Subir fotos en pareja recién después de cumplir seis meses de relación?',
+                    '¿Ir a terapia de pareja antes de cumplir un año de novios?',
+                    '¿Vivir juntos antes de casarse o comprometerse es obligatorio hoy en día?',
+                    '¿Tener cuentas bancarias y gastos 100% separados incluso viviendo bajo el mismo techo?',
+                    '¿Dividir los gastos de convivencia proporcionalmente al sueldo de cada uno en vez de 50 y 50?',
+                    '¿Tener contraseñas compartidas de redes sociales como prueba de transparencia?',
+                    '¿Dejar de ir a lugares donde sabés que va a estar tu ex para evitar incomodar a tu pareja?',
+                    '¿Contar el número exacto de personas con las que estuviste antes si tu pareja pregunta?',
+                    '¿Perdonar una infidelidad virtual (sexting) si nunca llegaron a verse en persona?',
+                    '¿Seguir viendo a escondidas una serie que habían empezado a mirar juntos?',
+                    '¿Hacerle una escena de celos en público a tu pareja si ves algo que no te cierra?',
+                    '¿Bajarle el perfil a tu pareja frente a tus amigos para hacerte el gracioso/a?',
+                    '¿Dormir en camas o cuartos separados si uno de los dos ronca muy fuerte?',
+                    '¿Revisar los likes que tu pareja le da a modelos o influencers?',
+                    '¿Pedirle a tu pareja que borre fotos con su ex de su perfil de Instagram?',
+                    '¿Es válido terminar una relación larga por WhatsApp o llamada si viven lejos?',
+                    '¿Volver con alguien que ya te fue infiel una vez y te juró que cambió?',
+                    '¿Tener un "plan B" emocional por si la relación actual se termina?',
+                    '¿Mentir sobre cuánto te salió algo caro que te compraste para que tu pareja no te critique?',
+                    '¿Salir a cenar a solas con un compañero/a de trabajo que te parece atractivo/a?',
+                    '¿Contarle a tu pareja si un amigo suyo te tiró onda?',
+                    '¿Dejar de hablarle a un amigo porque a tu pareja le cae mal sin motivo claro?',
+                    '¿Hacer regalos caros en fechas comerciales como San Valentín es obligatorio o puro marketing?',
+                    '¿Es infidelidad bailar muy pegado con otra persona en un boliche?',
+                    '¿Tener clave en el celular con FaceID de tu pareja registrado?',
+                    '¿Seguir teniendo fotos de tus ex en una carpeta oculta de Google Fotos o iCloud?',
+                    '¿Discutir delante de los amigos o esperar siempre a estar a solas?',
+                    '¿Aceptar que tu pareja tenga un/a "esposo/a laboral" (compañero súper pegado en la oficina)?',
+                    '¿Mudarse de ciudad o de país por el trabajo de tu pareja dejando tu carrera en pausa?',
+                    '¿Es saludable revisar el celular mutuamente una vez por mes para evitar dudas?',
+                    '¿Tener hijos sin estar casados ni haber firmado unión convivencial?',
+                    '¿Perdonar que tu pareja te haya mentido sobre dónde estuvo una noche entera?',
+                    '¿Responderle el saludo cordial a un ex cuando te lo cruzás en la calle y vas de la mano con tu pareja?',
+                    '¿Guardarse las molestias chicas para no pelear hasta que un día explota todo?',
+                    '¿Es válido pedirle a tu pareja que cambie su forma de vestirse para una fiesta?',
+                    '¿Tener una mascota juntos antes de convivir es mala idea?',
+                    '¿Que tu pareja tenga más intimidad emocional con su mejor amigo/a que con vos es una forma de infidelidad?',
+                    '¿Seguir pagando plataformas como Netflix o Spotify compartidas con un ex?',
+                    '¿Hacerle un test de fidelidad falso desde una cuenta trucha para probar a tu pareja?',
+                    '¿Contarles a tus viejos cada crisis o pelea fuerte que tenés con tu pareja?',
+                    '¿Salir de fiesta con la ex pareja de tu hermano o hermana?',
+                    '¿Es obligatorio invitar a tu pareja a absolutamente todas las reuniones con tus amigos?',
+                    '¿Dar una segunda oportunidad después de haber descubierto chats comprometedores?',
+                    '¿Tener un diario íntimo o notas privadas en el celular que tu pareja jamás pueda leer?',
+                    '¿Cambiar tus planes de vida por completo para encajar con los de tu pareja?',
+                    '¿Es peor la infidelidad emocional (enamorarse de otro) que un desliz físico de una noche?',
+                    '¿Hacerle reclamos a tu pareja por cosas que hizo cuando todavía no eran novios?',
+                    '¿Dejar de seguir a todas tus ex parejas apenas formalizás una relación?',
+                    '¿Aceptar que tu pareja salga a tomar un café con alguien que le declaró su amor hace años?',
+                    '¿Tener un fondo común de ahorro en pareja antes de comprar una propiedad?',
+                    '¿Es válido terminar una relación simplemente porque se acabó la pasión aunque haya mucho cariño?',
+                    '¿Revisar las reacciones de historias que le mandan a tu pareja?',
+                    '¿Ir al casamiento de un ex si te invita en buena onda?',
+                    '¿Tatuarse el nombre o la inicial de tu pareja actual?',
+                    '¿Es falta de respeto mirar a otra persona atractiva cuando vas caminando con tu pareja?',
+                    '¿Mantener el contacto con los ex suegros después de haber cortado hace más de un año?',
+                    '¿Pedirle a tu pareja que te avise cada vez que llega a un lugar?',
+                    '¿Es válido ocultar cuánto ganás exactamente a tu pareja?',
+                    '¿Tener una relación a distancia durante más de dos años sin fecha fija de reencuentro?',
+                    '¿Perdonar que tu pareja haya besado a alguien en un juego de "verdad o reto" en una previa?',
+                    '¿Usar aplicaciones de citas en pareja para buscar una tercera persona?',
+                    '¿Hacer público un conflicto de pareja tirando indirectas en redes sociales?',
+                    '¿Dejar que tu pareja lea tus conversaciones privadas con tus mejores amigos?',
+                    '¿Es necesario llevarse bien con la familia de tu pareja para que la relación funcione?',
+                    '¿Volver a darle oportunidad a alguien que te dejó por otra persona y después se arrepintió?',
+                    '¿Tener un acuerdo de "no preguntar qué pasa cuando cada uno viaja solo"?',
+                    '¿Es infidelidad suscribirse al OnlyFans o contenido exclusivo de alguien conocido?',
+                    '¿Dormirse enojados después de una discusión o quedarse despiertos hasta arreglarlo sí o sí?',
+                    '¿Aceptar que tu pareja duerma en la misma cama con un amigo/a por falta de lugar en un viaje?',
+                    '¿Hacerle una sorpresa cayendo sin avisar al trabajo o casa de tu pareja?',
+                    '¿Es válido terminar con alguien porque su familia es insoportable?',
+                    '¿Seguir usando el apodo cariñoso que usabas con tu ex con tu nueva pareja?',
+                    '¿Compartir el PIN del banco o tarjetas con tu pareja de años?',
+                    '¿Es infidelidad tener una conexión romántica con un chatbot o inteligencia artificial?',
+                    '¿Pedirle a tu pareja que borre el número de teléfono de todas sus antiguas citas?',
+                    '¿Viajar por separado con distintos grupos de amigos todos los veranos?',
+                    '¿Es obligatorio presentar a tu pareja a tu familia antes de los primeros tres meses?',
+                    '¿Perdonar una mentira sobre el pasado si hoy la relación es perfecta?',
+                    '¿Tener una cuenta secundaria de Instagram que tu pareja no conozca?',
+                    '¿Dejar de ir al gimnasio al que va el ex de tu pareja para evitar problemas?'
+                ],
+                amistad: [
+                    '¿Salir con el/la ex de un amigo/a si ya pasaron más de 2 años y pediste permiso?',
+                    '¿Contarle a tu mejor amigo/a un secreto que te pidieron guardar sobre una infidelidad de su pareja?',
+                    '¿Cancelar un plan con amigos a último momento porque te salió una cita con alguien que te gusta?',
+                    '¿Prestarle plata importante a un amigo sabiendo que puede arruinar la amistad si no te la devuelve?',
+                    '¿Irte de la previa o del boliche sin avisarle a tus amigos porque pegaste onda con alguien?',
+                    '¿Seguir hablando y teniendo buena onda con el ex de un amigo/a después de que cortaron mal?',
+                    '¿Dividir la cuenta exactamente por lo que consumió cada uno en una cena grupal?',
+                    '¿No invitar a la pareja de un amigo/a a una juntada del grupo de siempre para mantener la esencia?',
+                    '¿Un amigo de verdad te banca aunque sepa que te mandaste una cagada grave, o te tiene que frenar?',
+                    'Si un amigo empieza a salir con alguien que te cae pésimo: ¿se lo decís de frente o te callás?',
+                    '¿Chaparte en una fiesta a alguien que sabés que le gusta a un amigo/a de tu grupo, aunque nunca hayan estado?',
+                    '¿Desaparecer del grupo de amigos cada vez que te ponés en pareja y volver cuando cortás?',
+                    'Si organizan un viaje con amigos y uno se baja a último momento: ¿tiene que pagar igual su parte del alquiler?',
+                    '¿Tener un grupo paralelo de WhatsApp sin uno de los integrantes del grupo principal?',
+                    '¿Cubrirle una mentira a un amigo/a frente a su pareja si te preguntan directamente?',
+                    '¿Seguir siendo amigo de alguien que sabés que le es infiel a su pareja todo el tiempo?',
+                    '¿Salir con el hermano o la hermana de tu mejor amigo/a?',
+                    '¿Revisar el celular de un amigo borracho para contestarle mensajes y "salvarlo"?',
+                    '¿Decirle a un amigo que su emprendimiento o idea de negocio es malísima antes de que pierda plata?',
+                    '¿Cobrarle interés o recordarle todas las semanas a un amigo que te debe plata hace meses?',
+                    '¿Ir a una fiesta a la que invitaron a todo tu grupo menos a uno de tus amigos?',
+                    '¿Contar un secreto de un amigo a tu pareja bajo la excusa de que "con mi pareja no tengo secretos"?',
+                    '¿Competir en silencio con tus amigos por quién gana más plata o tiene mejor trabajo?',
+                    '¿Perdonar a un amigo que habló mal de vos a tus espaldas hace unos años?',
+                    '¿Dejar de juntarte con un amigo porque se volvió demasiado ratón o ventajero con la plata?',
+                    '¿Hacerle gancho a un amigo con alguien que sabés que solo lo quiere usar para pasar el rato?',
+                    '¿Mandar al frente a un amigo en una reunión para hacer reír al resto del grupo?',
+                    '¿Aceptar trabajar en la misma empresa o ser socio comercial de tu mejor amigo?',
+                    '¿Pedirle a un amigo que te haga la segunda en una salida sabiendo que va a tener que hablar con alguien que no le interesa?',
+                    '¿Cortar una amistad de diez años sin dar explicaciones simplemente porque ya no tienen nada en común?',
+                    '¿Decirle a tu amigo/a que su pareja actual lo está manipulando o tratando mal?',
+                    '¿Quedarte con el último pedazo de pizza o el último trago de la botella sin preguntar en una juntada?',
+                    '¿Invitar a un desconocido o conocido nuevo a una juntada íntima de tu grupo de toda la vida sin avisar?',
+                    '¿Criticar la crianza de los hijos de tus amigos cuando ves algo que te parece mal?',
+                    '¿Prestar tu auto o tu departamento para una cita a un amigo de confianza?',
+                    '¿Enojarte si un amigo sube una foto grupal donde vos salís horrible pero él sale bárbaro?',
+                    '¿Es válido tener un "mejor amigo" favorito dentro de un grupo muy unido?',
+                    '¿Insistirle a un amigo que está pasando un mal momento para que salga de fiesta cuando quiere quedarse solo?',
+                    '¿Devolver exactamente el mismo monto de regalo que te hizo un amigo en tu cumpleaños?',
+                    '¿Bancarte que un amigo llegue siempre 45 minutos tarde a todos los planes?',
+                    '¿Salir con alguien que tuvo un pasado complicado con un amigo lejano del grupo?',
+                    '¿Decirle la verdad cruda a un amigo sobre su aspecto físico o mal aliento antes de una cita?',
+                    '¿Organizar una fiesta sorpresa para un amigo sabiendo que odia ser el centro de atención?',
+                    '¿Aceptar que un amigo te pida que seas su garante de alquiler?',
+                    '¿Mandar audios de WhatsApp de más de 4 minutos a tus amigos todos los días?',
+                    '¿Borrar de tu vida a un amigo que nunca tiene iniciativa para organizar ni escribir primero?',
+                    '¿Contarle a tu grupo de amigos cuánto cobrás de sueldo exactamente?',
+                    '¿Hacerle un favor grande a un amigo esperando que en el futuro te lo devuelva?',
+                    '¿Quedarte en una fiesta cuando tu mejor amigo se descompuso o la está pasando mal?',
+                    '¿Salir a comer con el grupo y que el que tomó vino caro pida dividir todo en partes iguales?',
+                    '¿Decirle a un amigo que está tomando demasiado alcohol en cada salida?',
+                    '¿Compartir la contraseña de tus plataformas con tus amigos aunque te bloqueen la pantalla por exceso de usuarios?',
+                    '¿Guardar silencio si ves que a un amigo lo están estafando en una compra o negocio?',
+                    '¿Hacer chistes pesados sobre las inseguridades de un amigo porque "hay confianza"?',
+                    '¿Irte de viaje de egresados o de amigos sabiendo que dos integrantes del grupo se llevan pésimo?',
+                    '¿Perdonar que un amigo te haya dejado plantado en un evento muy importante para vos?',
+                    '¿Pedirle a tus amigos que te transfieran hasta los centavos de una compra en el súper?',
+                    '¿Es posible mantener una amistad real con alguien que tiene ideas políticas totalmente opuestas a las tuyas?',
+                    '¿Contar anécdotas vergonzosas de tus amigos frente a personas que recién conocen?',
+                    '¿Dejar de invitar a un amigo que siempre se pone agresivo o pesado cuando toma de más?',
+                    '¿Aceptar que tu mejor amigo salga con tu ex pareja de la secundaria?',
+                    '¿Hacer una vaquita para el regalo de cumpleaños de un amigo y poner menos plata que el resto?',
+                    '¿Decirle a un amigo que su música, banda o proyecto artístico no tiene futuro?',
+                    '¿Revisar las redes sociales de la nueva cita de tu amigo para hacerle un "informe de seguridad"?',
+                    '¿Quedarte con ropa o libros prestados de un amigo si nunca te los vuelve a pedir?',
+                    '¿Enojarte si dos amigos de tu grupo empiezan a juntarse mucho a solas sin invitarte?',
+                    '¿Mentirle a un amigo diciéndole que estás enfermo solo porque no tenés ganas de verlo ese día?',
+                    '¿Bancar económicamente a un amigo sin trabajo durante meses en todas las salidas?',
+                    '¿Pedirle a un amigo fotógrafo, diseñador o abogado que te haga un trabajo gratis por ser amigo?',
+                    '¿Salir en defensa de un amigo en una pelea callejera aunque sepas que él empezó el problema?',
+                    '¿Confesarle a tu mejor amigo que alguna vez sentiste atracción por él/ella?',
+                    '¿Dejar de seguir en redes a un amigo porque sube contenido insoportable pero seguir viéndolo en persona?',
+                    '¿Organizar vacaciones grupales votando todo por mayoría sin ceder a los caprichos de uno?',
+                    '¿Decirle a un amigo que está siendo infiel que si no corta con eso se lo vas a contar a su pareja?',
+                    '¿Aceptar que un amigo te cancele un viaje una semana antes por un problema menor?',
+                    '¿Hacerle una broma pesada a un amigo el día de su casamiento frente a toda la familia?',
+                    '¿Prestarse ropa interior o traje de baño entre amigos de mucha confianza?',
+                    '¿Tener amigos por conveniencia laboral o de contactos aunque no te caigan del todo bien?',
+                    '¿Reclamarle a un amigo que nunca te da like ni comenta tus logros en redes sociales?',
+                    '¿Ir a visitar a un amigo que se mudó lejos aunque nunca venga él a visitarte a vos?',
+                    '¿Perdonar que un amigo se haya besado con alguien que te gustaba hace años?',
+                    '¿Contar en el grupo lo que un amigo te confesó llorando una noche?',
+                    '¿Dejar que tus amigos te elijan con quién salir como si fuera un casting?',
+                    '¿Es válido cobrarle nafta a tus amigos cuando los llevás en tu auto a una fiesta cerca?',
+                    '¿Quedarte callado cuando tus amigos critican a otro integrante que no está presente?',
+                    '¿Seguir siendo amigo de alguien que trata mal a los mozos o empleados?',
+                    '¿Hacerle una intervención grupal a un amigo por una mala decisión amorosa?',
+                    '¿Compartir cuarto de hotel con un amigo que tiene hábitos de higiene muy distintos a los tuyos?',
+                    '¿Pedirle a un amigo que borre una historia donde salís tomando de más porque lo puede ver tu jefe?',
+                    '¿Terminar una amistad por un desacuerdo de dinero de menos de 20 dólares?'
+                ],
+                redes: [
+                    '¿Ghostear (desaparecer sin dar explicaciones) después de 3 citas si sentís que no va más?',
+                    '¿Clavar el visto en WhatsApp y subir historias a Instagram a los 5 minutos?',
+                    '¿Stalkear a fondo las redes sociales (hasta fotos de 2016) de alguien antes de la primera cita?',
+                    '¿Subir fotos de otras personas o amigos a tus historias sin preguntarles antes si salen bien?',
+                    '¿Usar filtros que cambian por completo la cara en fotos de apps de citas?',
+                    '¿Tener una cuenta falsa o secundaria para chusmear historias de gente que bloqueaste o te bloqueó?',
+                    '¿Dejar de seguir a alguien inmediatamente después de dejar de salir o tener una mala cita?',
+                    '¿Leer los mensajes desde la barra de notificaciones para no activar el doble tilde azul?',
+                    '¿Publicar capturas de pantalla de chats privados en grupos de WhatsApp para analizar qué quiso decir?',
+                    '¿Subir fotos llorando o atravesando un mal momento emocional a Instagram o TikTok?',
+                    '¿Usar ChatGPT o inteligencia artificial para redactar mensajes románticos o disculpas importantes?',
+                    '¿Revisar quién vio tus historias de Instagram en orden para sacar conclusiones sobre quién te busca?',
+                    '¿Silenciar las historias y publicaciones de tus propios amigos porque te aburre lo que suben?',
+                    '¿Hacer "soft launch" (subir solo la mano o el hombro de tu pareja) antes de blanquear?',
+                    '¿Mandar mensajes de voz acelerados o escuchar siempre los audios en velocidad 2x?',
+                    '¿Borrar un posteo o historia si a la primera hora tuvo muy pocos likes?',
+                    '¿Seguir en Instagram a cientos de cuentas de modelos o influencers estando en pareja?',
+                    '¿Pedirle el Instagram a alguien en un boliche en vez del número de WhatsApp es mejor?',
+                    '¿Tener el perfil de Instagram completamente público o es mejor tenerlo privado?',
+                    '¿Subir fotos de tus hijos o sobrinos menores de edad a redes sociales abiertas?',
+                    '¿Reaccionar con fuego a historias de gente conocida solo para subirles el ego sin intención de nada?',
+                    '¿Bloquear a un ex de todos lados (incluso MercadoPago o Spotify) para superar la ruptura?',
+                    '¿Grabar conciertos o fiestas enteras con el celular en alto en vez de disfrutar el momento?',
+                    '¿Usar el celular en el baño mientras estás en una reunión familiar o con amigos?',
+                    '¿Subir historias entrenando en el gimnasio todos los días es motivación o pura necesidad de aprobación?',
+                    '¿Mandar un punto o un signo de pregunta cuando alguien tarda más de 6 horas en contestarte?',
+                    '¿Tener desactivadas las confirmaciones de lectura de WhatsApp es de persona madura o de evasiva?',
+                    '¿Comprar seguidores o likes para aparentar más alcance en redes personales?',
+                    '¿Ventilar peleas con marcas, aerolíneas o locales escrachando empleados en redes sociales?',
+                    '¿Seguir usando BeReal, Threads o Twitter/X para tirar indirectas a gente que te conoce?',
+                    '¿Dejar el celular boca abajo arriba de la mesa siempre es señal de que ocultás algo?',
+                    '¿Subir fotos de platos de comida en restaurantes antes de dejar comer a los demás?',
+                    '¿Aprobar solicitudes de seguimiento de gente totalmente desconocida solo para sumar números?',
+                    '¿Mandar memes por Instagram todos los días como única forma de mantener viva una amistad?',
+                    '¿Revisar la lista de "seguidos recientes" de alguien para ver a quién conoció el fin de semana?',
+                    '¿Hacer un hilo o descargo largo en redes cada vez que te pasa algo injusto en la calle?',
+                    '¿Subir fotos en ropa interior o traje de baño muy jugado buscando validación externa?',
+                    '¿Borrar todos los mensajes de un chat apenas terminás de hablar con alguien?',
+                    '¿Usar aplicaciones de citas estando de viaje en otra ciudad solo para conseguir guías turísticos gratis?',
+                    '¿Contestar un mensaje tres días después diciendo "perdón, recién lo veo" cuando vivís con el teléfono en la mano?',
+                    '¿Grabar a escondidas a alguien haciendo algo gracioso o vergonzoso en la calle para subirlo a TikTok?',
+                    '¿Tener más de 1.000 chats sin leer en WhatsApp y no inmutarse?',
+                    '¿Poner estado de WhatsApp con frases filosóficas o letras de canciones melancólicas?',
+                    '¿Aceptar solicitudes de amistad de tus jefes o compañeros de trabajo en tu Instagram personal?',
+                    '¿Subir fotos de viajes pasados como si estuvieras ahí hoy ("latergram")?',
+                    '¿Usar redes sociales mientras manejás en el semáforo en rojo?',
+                    '¿Eliminar de tus seguidores a gente con la que ya no hablás (hacer "limpieza de Instagram")?',
+                    '¿Mandar un audio de 5 segundos para decir solamente "sí" o "dale"?',
+                    '¿Creer en los horóscopos, cartas astrales y compatibilidad de signos que salen en TikTok?',
+                    '¿Pagar la verificación azul de Instagram o X sin ser figura pública ni empresa?',
+                    '¿Subir fotos de ramos de flores o regalos caros etiquetando a quien te los dio para presumir?',
+                    '¿Dejar de usar redes sociales por completo durante un mes como detox digital?',
+                    '¿Responder historias de desconocidos que te parecen lindos/as sin tener ningún amigo en común?',
+                    '¿Guardar memes o fotos de otras personas en tu galería ocupando gigas de memoria?',
+                    '¿Hacer videollamadas sin avisar antes por mensaje si la otra persona puede atender?',
+                    '¿Subir stories desde el auto manejando con música fuerte de fondo?',
+                    '¿Tener un grupo de Mejores Amigos con más de 100 personas pierde el sentido?',
+                    '¿Usar fotos de hace 5 años en tu perfil de LinkedIn o WhatsApp?',
+                    '¿Es válido terminar una amistad porque te dejó de seguir en Instagram sin motivo?',
+                    '¿Mirar series o películas mirando el celular al mismo tiempo sin prestar atención?',
+                    '¿Compartir tu ubicación en vivo con tus amigos cada vez que volvés solo/a de noche?',
+                    '¿Dejar comentarios públicos coqueteando en las fotos de alguien que te gusta?',
+                    '¿Usar filtros de belleza suaves en absolutamente todas las selfies que te sacás?',
+                    '¿Tener notificaciones activadas de todas las apps es vivir estresado al pedo?',
+                    '¿Subir un resumen de fotos del mes ("photo dump") todos los meses del año?',
+                    '¿Mandar mensajes por LinkedIn con intención de levante o cita?',
+                    '¿Revisar el último horario de conexión de alguien en WhatsApp antes de irte a dormir?',
+                    '¿Subir fotos de tu ticket o captura de transferencia cuando donás plata a una causa?',
+                    '¿Preferir mandar mensaje de texto antes que hacer una llamada telefónica de 30 segundos?',
+                    '¿Tener el celular en modo "No molestar" las 24 horas del día?',
+                    '¿Subir fotos brindando con alcohol un martes a la tarde?',
+                    '¿Usar inteligencia artificial para generar fotos tuyas que parecen reales y subirlas como propias?',
+                    '¿Dejar el visto en un grupo de WhatsApp cuando piden voluntarios para organizar algo?',
+                    '¿Seguir a las ex parejas de tu actual pareja para ver cómo son?',
+                    '¿Hacer transmisiones en vivo en Instagram cuando salís de fiesta con amigos?',
+                    '¿Ponerle clave individual a WhatsApp además de la clave de bloqueo del teléfono?',
+                    '¿Subir fotos de libros que nunca terminaste de leer para quedar intelectual?',
+                    '¿Responder con un simple emoji de pulgar arriba 👍 en una conversación seria?',
+                    '¿Tener una carpeta llena de capturas de pantalla comprometedoras por si algún día hacen falta?',
+                    '¿Borrar tu cuenta de Twitter/X o Facebook para que nadie busque tu pasado digital?'
+                ],
+                salidas: [
+                    'En la primera cita: ¿se divide la cuenta 50/50 o paga el que invitó?',
+                    '¿Volver a intentar algo con un/a ex tóxico/a porque la química física era insuperable?',
+                    '¿Tener algo casual o un "touch and go" con alguien de tu propio grupo de amigos?',
+                    '¿Mentir o bajar el número sobre tu pasado amoroso y sexual si tu pareja te lo pregunta?',
+                    '¿Volver a escribirle a alguien que te ghosteó hace 6 meses solo porque estás aburrido un domingo a la noche?',
+                    '¿Tener sexo en la primera cita resta chances para algo serio o es un prejuicio viejo?',
+                    '¿Cancelar un plan a último momento simplemente porque te dio fiaca salir de tu casa?',
+                    '¿Salir con alguien que tiene 15 años más o 15 años menos que vos?',
+                    '¿Chaparte a dos personas distintas en la misma noche en un boliche o previa?',
+                    '¿Ir a tomar un café o una birra de 45 minutos como primera cita en vez de una cena larga?',
+                    '¿Llegar 20 minutos tarde a una cita o previa es normal o una falta de respeto total?',
+                    '¿Tomar alcohol en la previa para "desinhibirse" antes de ir a un lugar donde no conocés a nadie?',
+                    '¿Elegir siempre vos la música en la previa sin dejar que los demás pongan temas?',
+                    '¿Colarse en la fila del boliche o pedirle a un amigo que te haga pasar adelante?',
+                    '¿Ir a una cita llevando a un amigo/a de "apoyo" sin haber avisado antes?',
+                    '¿Besar en la boca en la primera cita si hubo buena charla es casi obligatorio?',
+                    '¿Quedarte a dormir en la casa de alguien que conociste esa misma noche en el boliche?',
+                    '¿Pedir el plato más caro del menú cuando sabés que te están invitando a cenar?',
+                    '¿Usar cupones de descuento o promociones 2x1 en una primera cita?',
+                    '¿Ir a una previa con las manos vacías sin llevar ni hielo, ni bebida, ni algo para picar?',
+                    '¿Tomarte el trago más caro que trajeron otros en la previa cuando vos trajiste lo más barato?',
+                    '¿Salir de fiesta un domingo a la noche teniendo que trabajar o estudiar el lunes a las 8?',
+                    '¿Armar una previa en tu casa y echar a todos a las 2 de la mañana porque te dio sueño?',
+                    '¿Chaparte al/la ex de alguien que está presente en la misma previa?',
+                    '¿Decirle a alguien en la primera cita cuáles son tus "red flags" y traumas de entrada?',
+                    '¿Ir al cine en la primera cita es un error porque no podés hablar?',
+                    '¿Pagar la entrada del boliche más cara solo para entrar al sector VIP?',
+                    '¿Salir a bailar solo/a cuando ningún amigo quiere acompañarte?',
+                    '¿Volver en Uber/taxi compartiendo viaje con alguien que recién conociste en la fiesta?',
+                    '¿Hacer "previa de la previa" desde las 7 de la tarde?',
+                    '¿Mezclar distintos tipos de alcohol en la misma noche sabiendo que al otro día vas a sufrir?',
+                    '¿Invitar a tu casa a alguien después de la primera cita si vivís con tus padres o compañeros de piso?',
+                    '¿Preguntar por el signo zodiacal en los primeros diez minutos de charla en una cita?',
+                    '¿Irse de una cita a la mitad inventando una emergencia porque no hubo nada de onda?',
+                    '¿Subir al escenario o a la barra a bailar cuando suena tu tema favorito?',
+                    '¿Pedirle al DJ que pase un tema tuyo en medio de una fiesta?',
+                    '¿Hacer juegos de tomar (como "Yo nunca" o "Verdad o reto") en todas las previas?',
+                    '¿Salir con alguien que no toma una gota de alcohol nunca?',
+                    '¿Tener una cita doble con otra pareja de amigos recién en la segunda salida?',
+                    '¿Quedarte hablando toda la noche con una sola persona en una previa y no socializar con nadie más?',
+                    '¿Mandar mensaje apenas llegás a tu casa después de una cita o esperar al día siguiente?',
+                    '¿Ir a desayunar facturas o medialunas a las 7 de la mañana después de salir del boliche?',
+                    '¿Usar zapatillas deportivas para salir a un boliche elegante?',
+                    '¿Aceptar una cita con alguien que conociste en la fila del supermercado o en el transporte público?',
+                    '¿Cortar una cita porque la otra persona trató mal al mozo o fue maleducada?',
+                    '¿Ir de camping o a una cabaña en la primera escapada con alguien que salís hace un mes?',
+                    '¿Tomar fernet, cerveza o vino en vaso de plástico cortado de botella?',
+                    '¿Organizar una previa temática con disfraces o dress code obligatorio?',
+                    '¿Decir "nos vemos la semana que viene" al despedirse sabiendo que no vas a volver a escribir?',
+                    '¿Salir con alguien que vive a más de una hora y media de distancia de tu casa?',
+                    '¿Pedir permiso antes de dar el primer beso en una cita?',
+                    '¿Quedarte sin batería en el celular a propósito cuando salís de fiesta para desconectarte?',
+                    '¿Volver a salir con alguien con quien la primera cita fue un desastre total?',
+                    '¿Ir a bailar reggaetón y cumbia o preferir electrónica y cachengue?',
+                    '¿Llevar tuppers para llevarte comida que sobró de un cumpleaños o evento?',
+                    '¿Salir en cita a hacer deporte (correr, ir al gimnasio o escalar) en vez de ir a tomar algo?',
+                    '¿Dejar propina extra cuando el servicio fue excelente aunque tus amigos no quieran poner nada?',
+                    '¿Contar chistes verdes o subidos de tono en la primera cita para romper el hielo?',
+                    '¿Es válido salir con dos o tres personas distintas a la vez mientras no haya exclusividad hablada?',
+                    '¿Blanquear en la tercera cita exactamente qué estás buscando (algo serio o casual)?',
+                    '¿Quedarte en la previa hablando de trabajo o facultad hasta las 3 de la mañana?',
+                    '¿Dormir una siesta de 3 horas antes de salir para aguantar toda la noche?',
+                    '¿Hacer un asado o comida casera en tu casa como plan de primera cita?',
+                    '¿Pedirle a un amigo que te llame a los 40 minutos de una cita por si necesitás una excusa para irte?',
+                    '¿Ir a un karaoke en una primera salida para ver si la otra persona tiene sentido del humor?',
+                    '¿Salir a bailar en pareja vs salir cada uno por su lado?',
+                    '¿Aceptar que alguien te pague el Uber de vuelta después de una cita?',
+                    '¿Cambiar de boliche a las 4 de la mañana porque el primero estaba aburrido?',
+                    '¿Quedarte en el after hasta el mediodía del domingo?',
+                    '¿Tener una lista mental de "requisitos no negociables" antes de aceptar salir con alguien?'
+                ],
+                cotidiano: [
+                    'Si el cajero o el mozo se equivoca y te cobra de menos por error: ¿avisás o te hacés el distraído?',
+                    '¿Usar el celular en la mesa mientras estás cenando o tomando algo cara a cara con otra persona?',
+                    '¿Mentir o exagerar experiencia en el currículum para conseguir un buen trabajo?',
+                    '¿Quedarte con un billete que encontraste tirado en el piso de un local vacío sin preguntar de quién es?',
+                    '¿Dejar propina obligatoria del 10% incluso cuando te atendieron pésimo y la comida llegó fría?',
+                    '¿Hacerte el dormido en el colectivo, subte o tren para no ceder el asiento a alguien que lo necesita?',
+                    '¿Escuchar audios o mirar videos en el transporte público sin auriculares?',
+                    '¿Colarte disimuladamente en una fila larga si ves un hueco o conocés a alguien adelante?',
+                    '¿Renunciar a un trabajo estable sin tener otro asegurado solo porque te tiene harto?',
+                    '¿Trabajar lo mínimo indispensable por lo que te pagan ("quiet quitting") en vez de ponerte la camiseta?',
+                    '¿Reclamarle al vecino por ruidos molestos a las 11 de la noche un viernes?',
+                    '¿No levantar la caca de tu perro en la vereda cuando creés que nadie te está mirando?',
+                    '¿Estacionar en doble fila "solo 5 minutos" tapando la salida de otro auto o el tránsito?',
+                    '¿Pedir plata prestada a familiares para viajar o darte gustos en vez de ahorrar?',
+                    '¿Regatear el precio a emprendedores o feriantes independientes?',
+                    '¿Aceptar un trabajo muy bien pago en una empresa cuyos valores no compartís?',
+                    '¿Decirle a alguien que tiene algo entre los dientes o la bragueta baja aunque sea un desconocido?',
+                    '¿Devolver un producto usado a una tienda diciendo que no te gustó para que te reintegren la plata?',
+                    '¿Hacer home office desde la cama en pijama todo el día?',
+                    '¿Compartir asiento en el avión o micro de larga distancia y apropiarte de los dos apoyabrazos?',
+                    '¿Reclinar el asiento del avión al máximo apenas despega sin mirar quién está atrás?',
+                    '¿Llegar al aeropuerto con apenas 45 minutos de anticipación para un vuelo nacional?',
+                    '¿Guardar lugares en una fila o en un recital para cuatro amigos que todavía no llegaron?',
+                    '¿Comprar ropa de imitación o réplicas exactas de marcas de lujo?',
+                    '¿Ahorrar hasta el último centavo en la juventud o gastar todo en experiencias y viajes?',
+                    '¿Tener un emprendimiento propio trabajando 12 horas al día o ser empleado 8 horas y olvidarte?',
+                    '¿Pedir siempre delivery aunque el local quede a tres cuadras de tu casa?',
+                    '¿Comer en la cama dejando migas entre las sábanas?',
+                    '¿Ducharse a la mañana antes de arrancar el día o a la noche antes de acostarse?',
+                    '¿Dejar los platos sucios en la pileta hasta el día siguiente después de cenar?',
+                    '¿Usar la misma toalla de baño durante más de una semana entera?',
+                    '¿Poner la alarma 10 veces cada 5 minutos despertando a toda la casa?',
+                    '¿Hablar mal de tus compañeros de trabajo con otros compañeros en el horario del almuerzo?',
+                    '¿Tomarte días por enfermedad en el trabajo cuando en realidad estás sano pero agotado mentalmente?',
+                    '¿Mirar precios en un local físico, probarte todo y después comprarlo más barato por internet?',
+                    '¿Pedirle rebaja a un amigo que vende cosas o tiene un comercio?',
+                    '¿Invertir en criptomonedas o apuestas deportivas buscando ganar plata rápido?',
+                    '¿Prestarle plata a un familiar sabiendo que probablemente sea a fondo perdido?',
+                    '¿Dejar el carrito del supermercado tirado en medio del estacionamiento en vez de llevarlo a su lugar?',
+                    '¿Cruzar la calle por la mitad de la cuadra en vez de caminar hasta la senda peatonal?',
+                    '¿Tocar bocina apenas se pone el semáforo en verde si el de adelante tardó medio segundo?',
+                    '¿Llevar valija gigante de cabina para no despachar equipaje y tardar 15 minutos en guardarla?',
+                    '¿Aplaudir cuando aterriza el avión?',
+                    '¿Usar medias con ojotas o crocs para salir a hacer mandados al barrio?',
+                    '¿Bañarte en la pileta sin darte una ducha previa?',
+                    '¿Comer pizza fría del día anterior para desayunar?',
+                    '¿Ponerle ananá a la pizza?',
+                    '¿Ponerle azúcar al mate o tomarlo siempre amargo?',
+                    '¿Preferir el verano con 38 grados antes que el invierno con 2 grados?',
+                    '¿Vivir en un departamento chico en el centro de la ciudad o en una casa grande lejos de todo?',
+                    '¿Tener aire acondicionado prendido en 18 grados y taparte con frazada?',
+                    '¿Dejar el papel higiénico apuntando hacia adelante o hacia la pared?',
+                    '¿Comprar cosas que no necesitás solo porque están en cuotas sin interés?',
+                    '¿Usar inteligencia artificial para hacer trabajos prácticos o informes laborales enteros?',
+                    '¿Decir "sí, ya estoy saliendo" cuando todavía estás en la ducha?',
+                    '¿Guardar bolsas de plástico dentro de otra bolsa de plástico en la cocina?',
+                    '¿Tener más de 50 pestañas abiertas en el navegador del celular?',
+                    '¿Comer directamente de la olla o del pote de helado cuando vivís solo?',
+                    '¿Pagar por estacionamiento medido o arriesgarte a que te hagan multa por 15 minutos?',
+                    '¿Hacer fila de una hora para entrar a un restaurante famoso que se volvió viral en TikTok?'
+                ],
+                valores: [
+                    '¿Las mentiras piadosas son necesarias para convivir en paz o siempre es mejor la verdad cruda?',
+                    '¿Dar segundas oportunidades a personas que te fallaron feo en el pasado?',
+                    '¿Cortar relación por completo con un familiar directo (padre, madre o hermano) si te hace mal?',
+                    '¿Es cierto que "el que tiene plata hace lo que quiere" o existen límites éticos que no se negocian?',
+                    '¿Priorizar tu crecimiento profesional y económico por encima de pasar tiempo con tus seres queridos?',
+                    '¿Perdonar pero nunca olvidar es sano o es guardar rencor disfrazado?',
+                    '¿Creés que las personas realmente cambian con los años o solo aprenden a disimular mejor?',
+                    '¿Es válido mentir en una entrevista o trámite burocrático si no perjudicás directamente a nadie?',
+                    '¿Tener hijos hoy en día es una decisión responsable o un acto egoísta por cómo está el mundo?',
+                    '¿La suerte y los contactos pesan más que el esfuerzo y el estudio para tener éxito?',
+                    '¿Es mejor pedir perdón que pedir permiso?',
+                    '¿Se puede separar la obra de un artista de las cosas horribles que hizo en su vida personal?',
+                    '¿Hacer terapia psicológica debería ser algo que todo el mundo haga al menos una vez en la vida?',
+                    '¿Es justo heredar millones sin haber trabajado un día o debería haber impuestos altísimos a las herencias?',
+                    '¿La monogamia es lo más natural para el ser humano o es una construcción cultural que nos cuesta?',
+                    '¿Decir siempre lo que pensás sin filtro es sinceridad o falta de empatía?',
+                    '¿Es válido robar comida o medicamentos en una situación extrema de necesidad?',
+                    '¿Los padres tienen derecho a revisar lo que hacen sus hijos adolescentes en internet?',
+                    '¿La amistad verdadera entre el hombre y la mujer existe sin que jamás haya habido atracción?',
+                    '¿Es mejor vivir una vida corta e intensa o una vida larga, tranquila y predecible?',
+                    '¿El dinero compra la felicidad o solo compra tranquilidad para buscarla?',
+                    '¿Es válido dejar de hablarle a alguien por una diferencia moral o política irreconciliable?',
+                    '¿Creés en el destino y que todo pasa por algo, o todo es pura casualidad y decisiones?',
+                    '¿Es egoísta elegir no tener hijos para dedicar toda tu vida a viajar y disfrutar para vos?',
+                    '¿Se debe ayudar siempre a los padres económicamente en la vejez sin importar cómo fueron de chicos?',
+                    '¿La venganza bien ejecutada da paz mental o te deja peor que antes?',
+                    '¿Es mejor ser temido y respetado o ser querido por todo el mundo?',
+                    '¿La inteligencia emocional es más importante que el coeficiente intelectual?',
+                    '¿Creés que existe el "alma gemela" única o podemos ser felices con muchas personas distintas?',
+                    '¿Es válido mentirle a un ser querido enfermo para evitarle un sufrimiento innecesario?',
+                    '¿La lealtad a la familia está por encima de la ley o de lo que es correcto?',
+                    '¿Es mejor arrepentirse de algo que hiciste o quedarte con la duda de qué hubiera pasado?',
+                    '¿Los zoológicos y acuarios deberían prohibirse por completo en todo el mundo?',
+                    '¿Es ético tener mascotas exóticas o perros de raza comprados en criaderos en vez de adoptar?',
+                    '¿La educación universitaria sigue siendo la mejor inversión para el futuro?',
+                    '¿Es mejor vivir en tu país cerca de tu gente aunque cueste progreso, o emigrar buscando estabilidad?',
+                    '¿El orgullo sirve para proteger la dignidad o solo arruina vínculos valiosos?',
+                    '¿Creés que la gente buena recibe cosas buenas (karma) o a los malos les va igual de bien?',
+                    '¿Es válido ocultar un error grave en el trabajo si nadie salió herido y lo podés tapar?',
+                    '¿La privacidad total dejó de existir y ya deberíamos aceptarlo sin quejarnos?',
+                    '¿Es preferible tener pocos amigos íntimos de toda la vida o muchos grupos sociales distintos?',
+                    '¿Las segundas partes en el amor nunca fueron buenas o a veces salen mejor que la primera?',
+                    '¿Es válido juzgar a alguien por cómo trata a los animales?',
+                    '¿La puntualidad es una muestra básica de respeto hacia el tiempo del otro?',
+                    '¿Es mejor saber la fecha exacta en la que vas a morir o vivir sin saberlo nunca?',
+                    '¿La honestidad brutal sin tacto es una forma de crueldad?',
+                    '¿Es justo que alguien pierda su trabajo hoy por un tuit o comentario tonto que hizo hace 12 años?',
+                    '¿La ambición desmedida siempre termina arruinando las relaciones personales?',
+                    '¿Es válido romper una promesa si cumplirla te hace mucho daño a vos mismo?',
+                    '¿El amor verdadero todo lo puede o con el amor solo no alcanza para sostener una vida juntos?'
+                ]
+            };
+
+            // Generador combinatorio de escenarios realistas y específicos de previa para superar los +1.080 tópicos únicos sin repeticiones ni números artificiales
+            const scenarioBlocks = {
+                pareja: {
+                    actions: [
+                        '¿Aceptarías que tu pareja',
+                        '¿Considerás infidelidad que tu pareja',
+                        '¿Te bancarías que tu pareja',
+                        '¿Está bien que en una relación seria alguien'
+                    ],
+                    situations: [
+                        'salga a tomar algo a solas con alguien que le tiró onda en el pasado?',
+                        'guarde regalos, cartas o buzos de una relación anterior en su placard?',
+                        'tenga un grupo de chat privado donde comentan fotos de otras personas?',
+                        'no suba jamás una foto con vos a sus redes sociales para parecer soltero/a?',
+                        'le cuente tus inseguridades o peleas íntimas a su grupo de amigos?',
+                        'haga viajes de fin de semana sin avisarte con quién va hasta último momento?',
+                        'mantenga el contacto frecuente con la familia de su ex pareja?',
+                        'te pida revisar tu teléfono cada vez que volvés tarde de una salida?',
+                        'reaccione con corazones a fotos de vacaciones de alguien con quien tuvo historia?',
+                        'ponga excusas para no presentarte en su círculo laboral o de amigos?',
+                        'tenga contraseñas distintas en cada app y esconda el celular cuando entrás al cuarto?',
+                        'compare tus defectos con las virtudes de sus parejas anteriores en una discusión?',
+                        'acepte invitaciones a cenar de compañeros de trabajo bajo la excusa de "networking"?',
+                        'use aplicaciones para conocer gente "solo para hacer amigos nuevos" en otra ciudad?',
+                        'no te defienda cuando un familiar suyo hace un comentario desubicado sobre vos?',
+                        'tenga una amistad íntima con alguien que sabés que está enamorado/a de ella o él?',
+                        'borre el historial de llamadas y mensajes todos los días antes de llegar a casa?',
+                        'se vaya a dormir en medio de una discusión importante apagando el teléfono?',
+                        'planifique vacaciones o gastos grandes sin consultarte absolutamente nada?',
+                        'coquetee con empleados o mozos para conseguir descuentos o mejor atención?'
+                    ]
+                },
+                amistad: {
+                    actions: [
+                        '¿Bancás que un amigo del grupo',
+                        '¿Perdonarías que tu mejor amigo/a',
+                        '¿Está dentro de los códigos que un amigo',
+                        '¿Seguirías juntándote con un amigo que'
+                    ],
+                    situations: [
+                        'se ponga a salir en secreto con alguien que te gustaba hace años?',
+                        'te cancele un viaje ya reservado una semana antes por un plan nuevo?',
+                        'te pida plata prestada y después suba historias gastando en fiestas o ropa?',
+                        'hable mal de vos con otra persona para quedar bien en un ambiente nuevo?',
+                        'cuente en una previa una anécdota tuya que le pediste que jamás repita?',
+                        'desaparezca por meses cuando está de novio y vuelva recién cuando corta?',
+                        'te deje solo/a en medio de un boliche o fiesta porque conoció a alguien?',
+                        'organice juntadas con tu grupo sin invitarte para evitar que lleves a tu pareja?',
+                        'te critique tus decisiones de vida frente a desconocidos para hacerse el gracioso?',
+                        'nunca ponga un peso para el regalo grupal pero siempre firme la tarjeta?',
+                        'se quede con algo que le prestaste de buena fe y haga de cuenta que se olvidó?',
+                        'te mienta sobre por qué no puede venir a tu cumpleaños cuando en realidad fue a otro lado?',
+                        'sea socio tuyo en un proyecto y trabaje la mitad que vos cobrando lo mismo?',
+                        'te pida que le cubras una infidelidad frente a su pareja que también es amiga tuya?',
+                        'se ponga insoportable y busque pelea cada vez que toma dos tragos de más?',
+                        'te cobre hasta el último centavo de una comida cuando vos siempre invitás sin mirar?',
+                        'salga con el hermano o la hermana menor de otro integrante del grupo?',
+                        'no te avise que tu pareja te está engañando por miedo a meterse en problemas?'
+                    ]
+                },
+                redes: {
+                    actions: [
+                        '¿Está bien visto hoy en día',
+                        '¿Es una red flag digital',
+                        '¿Bancarías que alguien cercano',
+                        '¿Considerás tóxico en redes'
+                    ],
+                    situations: [
+                        'mirar todas las historias de alguien pero jamás responderle un mensaje?',
+                        'tener una lista de Mejores Amigos distinta según lo que vas a subir?',
+                        'subir capturas de conversaciones privadas tachando apenas el nombre?',
+                        'bloquear y desbloquear a alguien cada vez que tienen un mínimo enojo?',
+                        'seguir a la nueva pareja de tu ex para ver qué hace y a dónde viaja?',
+                        'usar aplicaciones para saber quién dejó de seguirte en Instagram cada semana?',
+                        'subir fotos viejas como si estuvieras saliendo un martes a la madrugada?',
+                        'mandar mensajes largos y borrarlos antes de que la otra persona los lea?',
+                        'tener el celular sin notificaciones y tardar dos días en contestar cualquier cosa?',
+                        'escrachar a alguien en redes sociales antes de hablarlo cara a cara?',
+                        'likear fotos de hace tres años para llamar la atención sin escribir nada?',
+                        'usar cuentas secundarias para comentar o defenderse en discusiones públicas?',
+                        'subir fotos de regalos caros o transferencias para mostrar estatus?',
+                        'hacer videollamadas en lugares públicos sin auriculares a todo volumen?',
+                        'stalkear el perfil de LinkedIn de cada cita antes de salir a tomar algo?',
+                        'dejar de hablarle a alguien en la vida real porque te silenció en Instagram?'
+                    ]
+                },
+                salidas: {
+                    actions: [
+                        '¿En una salida grupal o cita está bien',
+                        '¿Bancarías en una previa que alguien',
+                        '¿Es aceptable en una primera cita',
+                        '¿Te parece válido en la noche'
+                    ],
+                    situations: [
+                        'llegar sin avisar con dos amigos que nadie del grupo conoce?',
+                        'pedir los tragos más caros de la carta y después exigir dividir en partes iguales?',
+                        'irse sin despedirse de nadie ("bomba de humo") cuando te aburrís?',
+                        'cambiar la música que puso el dueño de casa sin pedir permiso?',
+                        'hablar durante dos horas seguidas únicamente de tu ex pareja?',
+                        'mirar el reloj o el celular cada diez minutos mientras la otra persona habla?',
+                        'tomar directamente del pico de la botella compartida en medio de la ronda?',
+                        'arreglar dos citas distintas el mismo día con tres horas de diferencia?',
+                        'invitar a alguien a salir y recién al llegar decir que no tenés un peso?',
+                        'chaparte a alguien en el mismo lugar donde está tu ex mirando?',
+                        'armar una previa un miércoles hasta las 4 de la mañana en un edificio con vecinos?',
+                        'insistirle a alguien que no quiere tomar alcohol para que tome "aunque sea un shot"?',
+                        'quedarte dormido en el sillón de una casa ajena y aparecer recién al mediodía?',
+                        'pedir comida a domicilio en una cita y hacer que la otra persona baje a buscarla?',
+                        'criticar la ropa o el estilo de los demás invitados apenas entrás a la fiesta?',
+                        'volver a escribirle a una cita de hace un año solo porque te quedaste sin planes?'
+                    ]
+                },
+                cotidiano: {
+                    actions: [
+                        '¿En la vida cotidiana está justificado',
+                        '¿Harías la vista gorda si alguien',
+                        '¿Es válido en el día a día',
+                        '¿Te parece correcto en el trabajo o la calle'
+                    ],
+                    situations: [
+                        'quedarse con un paquete que llegó por error a tu domicilio sin nombre claro?',
+                        'fingir que tenés una llamada urgente para escapar de una charla incómoda?',
+                        'usar el baño de un bar o restaurante sin consumir absolutamente nada?',
+                        'mentir sobre tu disponibilidad horaria para que no te pidan favores los fines de semana?',
+                        'aprovechar un error de precio en una página web y comprar diez unidades?',
+                        'no avisar si rozaste apenas un auto estacionado cuando no quedó ni una marca?',
+                        'pedir certificado médico trucho para tomarte un viernes largo de descanso?',
+                        'comer muestras gratis en el supermercado tres veces seguidas sin comprar nada?',
+                        'ocupar dos asientos en el transporte público con la mochila cuando hay gente parada?',
+                        'devolver ropa que usaste una sola noche para una fiesta dejando la etiqueta escondida?',
+                        'cobrarle alquiler o gastos a tu pareja si se muda a una casa que ya es tuya?',
+                        'no dejar propina cuando pedís comida para llevar en el mostrador?',
+                        'usar el WiFi del vecino si tiene una contraseña obvia y el tuyo anda mal?',
+                        'saltarte los anuncios o pagar suscripciones compartidas falsificando el domicilio familiar?',
+                        'reclamar un descuento por una demora mínima en un servicio que igual disfrutaste?'
+                    ]
+                },
+                valores: {
+                    actions: [
+                        '¿Desde lo ético y personal creés que',
+                        '¿En la vida adulta es más sano',
+                        '¿Estarías a favor de',
+                        '¿Creés que vale la pena'
+                    ],
+                    situations: [
+                        'cortar todo vínculo con personas negativas aunque sean familiares directos?',
+                        'decir siempre la verdad aunque sepas que va a romper una relación para siempre?',
+                        'elegir una profesión que amás sabiendo que siempre vas a ganar lo justo?',
+                        'perdonar una traición grave para mantener la paz familiar?',
+                        'mudarte lejos de tu ciudad natal dejando atrás a tus amigos de la infancia?',
+                        'priorizar tu salud mental renunciando a un puesto de liderazgo muy bien pago?',
+                        'darle una tercera oportunidad a alguien que te demostró dos veces que no cambia?',
+                        'mantener en secreto algo grave que hizo un ser querido para protegerlo de la justicia?',
+                        'vivir solo toda la vida antes que convivir con alguien con quien no encajás al 100%?',
+                        'decirle a un familiar mayor que sus comentarios son hirientes aunque se ofenda?',
+                        'ayudar económicamente a un desconocido en la calle sabiendo que puede usarlo para otra cosa?',
+                        'exponer públicamente una injusticia laboral sabiendo que te pueden echar?',
+                        'elegir el éxito profesional por encima de formar una familia?',
+                        'aceptar ayuda económica de tus padres pasados los 30 años para comprar tu casa?',
+                        'cerrar etapas sin tener esa última charla de cierre que todos piden?'
+                    ]
+                }
+            };
+
+            const seen = new Set();
+            const result = [];
+            let idCounter = 1;
+
+            // Primero agregamos todas las preguntas curadas a mano
+            for (const [cat, list] of Object.entries(rawByCategory)) {
+                for (const rawText of list) {
+                    const clean = rawText.trim();
+                    const key = clean.toLowerCase();
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        result.push({
+                            id: 't_' + (idCounter++),
+                            category: cat,
+                            text: clean
+                        });
+                    }
+                }
+            }
+
+            // Luego combinamos los bloques situacionales para superar cómodamente los 1.080 tópicos únicos sin repeticiones
+            for (const [cat, block] of Object.entries(scenarioBlocks)) {
+                for (const action of block.actions) {
+                    for (const sit of block.situations) {
+                        const clean = `${action} ${sit}`.trim();
+                        const key = clean.toLowerCase();
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            result.push({
+                                id: 't_' + (idCounter++),
+                                category: cat,
+                                text: clean
+                            });
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        const MASTER_DEFAULT_DECK = buildMasterDeck();
+        const STORAGE_DECK_KEY = 'afavor_previa_custom_deck_v1';
+
+        function loadActiveDeck() {
+            try {
+                const raw = localStorage.getItem(STORAGE_DECK_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        return parsed;
+                    }
+                }
+            } catch (e) {
+                console.warn('Error leyendo mazo guardado, usando mazo original:', e);
+            }
+            return MASTER_DEFAULT_DECK.map(item => ({ ...item }));
+        }
+
+        let activeDeck = loadActiveDeck();
+
+        function saveActiveDeck() {
+            try {
+                localStorage.setItem(STORAGE_DECK_KEY, JSON.stringify(activeDeck));
+            } catch (e) {
+                showToast('No se pudo guardar en el navegador (memoria llena)');
+            }
+            refreshDeckCountersUI();
+        }
+
+        function refreshDeckCountersUI() {
+            const total = activeDeck.length;
+            const homeSpan = document.getElementById('home-total-topics');
+            if (homeSpan) homeSpan.textContent = total.toLocaleString('es-AR');
+
+            const counts = {
+                todas: total,
+                pareja: 0,
+                amistad: 0,
+                redes: 0,
+                salidas: 0,
+                cotidiano: 0,
+                valores: 0
+            };
+            for (const c of activeDeck) {
+                if (counts[c.category] !== undefined) counts[c.category]++;
+            }
+
+            const elTodas = document.getElementById('lobby-count-todas');
+            if (elTodas) elTodas.textContent = `${counts.todas.toLocaleString('es-AR')} cartas`;
+            const elPareja = document.getElementById('lobby-count-pareja');
+            if (elPareja) elPareja.textContent = `${counts.pareja} cartas`;
+            const elAmistad = document.getElementById('lobby-count-amistad');
+            if (elAmistad) elAmistad.textContent = `${counts.amistad} cartas`;
+            const elRedes = document.getElementById('lobby-count-redes');
+            if (elRedes) elRedes.textContent = `${counts.redes} cartas`;
+            const elSalidas = document.getElementById('lobby-count-salidas');
+            if (elSalidas) elSalidas.textContent = `${counts.salidas} cartas`;
+            const elCotidiano = document.getElementById('lobby-count-cotidiano');
+            if (elCotidiano) elCotidiano.textContent = `${counts.cotidiano} cartas`;
+            const elValores = document.getElementById('lobby-count-valores');
+            if (elValores) elValores.textContent = `${counts.valores} cartas`;
+        }
+
+        /**
+         * Algoritmo Fisher-Yates para barajar sin repeticiones
+         */
+        function fisherYatesShuffle(arr) {
+            const copy = [...arr];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+        // Firebase es opcional para el modo local. Para salas online, configurar
+        // window.PREVIA_FIREBASE_CONFIG con las credenciales del proyecto.
+        let app = null, auth = null, db = null, currentUser = null;
+        let initializeApp, getAuth, signInAnonymously, signInWithCustomToken;
+        let getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, arrayUnion;
+        let firebaseReady = false;
+        const appId = 'afavor-previa';
+        async function initFirebase() {
+            try {
+                const rawConfig = window.PREVIA_FIREBASE_CONFIG || window.__firebase_config;
+                if (!rawConfig) return false;
+                const [appSdk, authSdk, storeSdk] = await Promise.all([
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"),
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"),
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
+                ]);
+                ({ initializeApp } = appSdk);
+                ({ getAuth, signInAnonymously, signInWithCustomToken } = authSdk);
+                ({ getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, arrayUnion } = storeSdk);
+                const firebaseConfig = typeof rawConfig === 'string' ? JSON.parse(rawConfig) : rawConfig;
+                if (!firebaseConfig || !firebaseConfig.apiKey || !firebaseConfig.projectId) return false;
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                currentUser = auth.currentUser;
+                firebaseReady = Boolean(currentUser && db);
+                return firebaseReady;
+            } catch (err) {
+                console.error('Error iniciando Firebase:', err);
+                firebaseReady = false;
+                return false;
+            }
+        }
+
+
+        // Estado de la sesión del jugador
+        let myPlayerId = localStorage.getItem('previa_player_id') || ('p_' + Math.random().toString(36).substring(2, 10));
+        localStorage.setItem('previa_player_id', myPlayerId);
+
+        let myPlayerName = localStorage.getItem('previa_player_name') || '';
+        let currentRoomCode = null;
+        let currentRoomData = null;
+        let unsubscribeRoom = null;
+
+        // Estado Modo Local (Fallback)
+        let localDeck = [];
+        let localIdx = 0;
+        let localVotes = { favor: 0, contra: 0 };
+
+        // Sonido con Tone.js
+        let soundEnabled = true;
+        let synth = null;
+
+        function playTone(type) {
+            if (!soundEnabled) return;
+            try {
+                if (!synth) {
+                    synth = new Tone.PolySynth(Tone.Synth, {
+                        oscillator: { type: 'triangle' },
+                        envelope: { attack: 0.01, decay: 0.08, sustain: 0.02, release: 0.15 }
+                    }).toDestination();
+                    synth.volume.value = -14;
+                }
+                if (Tone.context.state !== 'running') Tone.start();
+                if (type === 'favor') synth.triggerAttackRelease(['F5', 'A5'], '16n');
+                else if (type === 'contra') synth.triggerAttackRelease(['D4', 'A3'], '16n');
+                else if (type === 'next') synth.triggerAttackRelease('C5', '32n');
+                else if (type === 'reveal') synth.triggerAttackRelease(['F4', 'A4', 'C5'], '8n');
+            } catch (e) {}
+        }
+
+        /**
+         * 3. UTILIDADES UI Y NAVEGACIÓN
+         */
+        const screens = {
+            home: document.getElementById('screen-home'),
+            lobby: document.getElementById('screen-lobby'),
+            game: document.getElementById('screen-game'),
+            local: document.getElementById('screen-local')
+        };
+
+        function showScreen(name) {
+            Object.values(screens).forEach(s => {
+                s.classList.add('hidden');
+                s.classList.remove('flex');
+            });
+            screens[name].classList.remove('hidden');
+            if (name !== 'home') screens[name].classList.add('flex');
+
+            const compatBtn = document.getElementById('btn-header-compat');
+            if (name === 'game' || name === 'lobby') {
+                compatBtn.classList.remove('hidden');
+            } else {
+                compatBtn.classList.add('hidden');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-2');
+            }, 2600);
+        }
+
+        function generateRoomCode() {
+            const words = ['VINO', 'PREV', 'JODA', 'BIRR', 'FERN', 'CITA', 'PICA', 'COPA', 'LUNA', 'BESO'];
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+            if (Math.random() < 0.45) {
+                return words[Math.floor(Math.random() * words.length)];
+            }
+            let code = '';
+            for (let i = 0; i < 4; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        function getRoomDocRef(code) {
+            return doc(db, 'artifacts', appId, 'public', 'data', 'previa_rooms', code.toUpperCase());
+        }
+
+        function pickNextCard(roomData) {
+            const cat = roomData.category || 'todas';
+            const roomPool = Array.isArray(roomData.roomDeck) && roomData.roomDeck.length > 0
+                ? roomData.roomDeck
+                : activeDeck;
+            const customCards = roomData.customCards || [];
+            const fullPool = [...roomPool, ...customCards];
+            const filtered = cat === 'todas' ? fullPool : fullPool.filter(c => c.category === cat);
+            const usedIds = roomData.usedCardIds || [];
+
+            let available = filtered.filter(c => !usedIds.includes(c.id));
+            let resetUsed = false;
+
+            if (available.length === 0) {
+                available = filtered.length > 0 ? filtered : fullPool;
+                resetUsed = true;
+            }
+
+            // Selección aleatoria sobre las cartas aún no usadas (equivale a recorrido Fisher-Yates sin repetición)
+            const chosen = available[Math.floor(Math.random() * available.length)];
+            const totalInCategory = filtered.length > 0 ? filtered.length : fullPool.length;
+            return { chosen, resetUsed, totalInCategory };
+        }
+
+
+        /**
+         * 4. CREAR Y UNIRSE A SALA EN TIEMPO REAL
+         */
+        async function createRoom() {
+            const nameInput = document.getElementById('input-player-name');
+            const name = nameInput.value.trim();
+            if (!name) {
+                showToast('Escribí tu nombre o apodo primero');
+                nameInput.focus();
+                return;
+            }
+
+            myPlayerName = name;
+            localStorage.setItem('previa_player_name', name);
+
+            if (!firebaseReady) {
+                const ok = await initFirebase();
+                if (!ok) {
+                    showToast('Sin conexión en la nube. Abriendo modo 1 celular...');
+                    startLocalMode();
+                    return;
+                }
+            }
+
+            const btnCreate = document.getElementById('btn-create-room');
+            btnCreate.disabled = true;
+            btnCreate.textContent = 'Creando sala...';
+
+            try {
+                let code = generateRoomCode();
+                let roomRef = getRoomDocRef(code);
+                const existing = await getDoc(roomRef);
+                if (existing.exists()) {
+                    code = generateRoomCode();
+                    roomRef = getRoomDocRef(code);
+                }
+                const shuffledInitial = fisherYatesShuffle(activeDeck);
+                const firstCard = shuffledInitial[0];
+
+                const initialRoom = {
+                    code,
+                    hostId: myPlayerId,
+                    status: 'lobby', // 'lobby' | 'playing'
+                    category: 'todas',
+                    roundNumber: 1,
+                    totalInDeck: shuffledInitial.length,
+                    roomDeck: shuffledInitial,
+                    currentCard: firstCard,
+                    usedCardIds: [firstCard.id],
+                    votes: {}, // { [playerId]: 'favor' | 'contra' }
+                    revealed: false,
+                    players: {
+                        [myPlayerId]: {
+                            id: myPlayerId,
+                            name: myPlayerName,
+                            joinedAt: Date.now()
+                        }
+                    },
+                    history: [], // [{ cardId, question, category, votes: { [playerId]: 'favor'|'contra' } }]
+                    customCards: [],
+                    updatedAt: Date.now()
+                };
+
+                await setDoc(roomRef, initialRoom);
+                subscribeToRoom(code);
+                playTone('reveal');
+            } catch (err) {
+                console.error(err);
+                showToast('Error al crear la sala. Intentá de nuevo.');
+            } finally {
+                btnCreate.disabled = false;
+                btnCreate.innerHTML = '<span>Crear Sala Nueva</span><span>→</span>';
+            }
+        }
+
+        async function joinRoom() {
+            const nameInput = document.getElementById('input-player-name');
+            const codeInput = document.getElementById('input-room-code');
+            const name = nameInput.value.trim();
+            const code = codeInput.value.trim().toUpperCase();
+
+            if (!name) {
+                showToast('Escribí tu nombre o apodo primero');
+                nameInput.focus();
+                return;
+            }
+            if (code.length !== 4) {
+                showToast('Ingresá el código de 4 letras');
+                codeInput.focus();
+                return;
+            }
+
+            myPlayerName = name;
+            localStorage.setItem('previa_player_name', name);
+
+            if (!firebaseReady) {
+                const ok = await initFirebase();
+                if (!ok) {
+                    showToast('No se pudo conectar. Probá el modo 1 celular.');
+                    return;
+                }
+            }
+
+            const btnJoin = document.getElementById('btn-join-room');
+            btnJoin.disabled = true;
+            btnJoin.textContent = 'Entrando...';
+
+            try {
+                const roomRef = getRoomDocRef(code);
+                const snap = await getDoc(roomRef);
+
+                if (!snap.exists()) {
+                    showToast(`No existe la sala "${code}"`);
+                    btnJoin.disabled = false;
+                    btnJoin.textContent = 'Entrar a Sala';
+                    return;
+                }
+
+                await updateDoc(roomRef, {
+                    [`players.${myPlayerId}`]: {
+                        id: myPlayerId,
+                        name: myPlayerName,
+                        joinedAt: Date.now()
+                    },
+                    updatedAt: Date.now()
+                });
+
+                subscribeToRoom(code);
+                playTone('reveal');
+            } catch (err) {
+                console.error(err);
+                showToast('Error al entrar a la sala');
+            } finally {
+                btnJoin.disabled = false;
+                btnJoin.textContent = 'Entrar a Sala';
+            }
+        }
+
+        function subscribeToRoom(code) {
+            if (unsubscribeRoom) unsubscribeRoom();
+            currentRoomCode = code;
+
+            // Actualizar URL sin recargar para que puedan copiar link fácilmente
+            try {
+                const url = new URL(window.location.href);
+                url.searchParams.set('sala', code);
+                window.history.replaceState({}, '', url);
+            } catch (e) {}
+
+            const roomRef = getRoomDocRef(code);
+            unsubscribeRoom = onSnapshot(roomRef, (docSnap) => {
+                if (!docSnap.exists()) {
+                    showToast('La sala fue cerrada');
+                    showScreen('home');
+                    return;
+                }
+                currentRoomData = docSnap.data();
+                renderRoomState(currentRoomData);
+            }, (err) => {
+                console.error('Error escuchando sala:', err);
+                showToast('Se perdió la sincronización en vivo');
+            });
+        }
+
+        /**
+         * 5. RENDERIZADO EN VIVO (LOBBY Y PANTALLA DE JUEGO)
+         */
+        function renderRoomState(room) {
+            const isHost = room.hostId === myPlayerId;
+            const playersObj = room.players || {};
+            const playersList = Object.values(playersObj).sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
+
+            document.getElementById('header-subtitle').textContent = `Sala ${room.code} • ${playersList.length} ${playersList.length === 1 ? 'jugador' : 'jugadores'}`;
+
+            // --- SI ESTÁ EN LOBBY ---
+            if (room.status === 'lobby') {
+                showScreen('lobby');
+                document.getElementById('lobby-room-code').textContent = room.code;
+                document.getElementById('lobby-player-count').textContent = `${playersList.length} ${playersList.length === 1 ? 'conectado' : 'conectados'}`;
+
+                // Lista de avatares con iniciales
+                const listEl = document.getElementById('lobby-players-list');
+                listEl.innerHTML = '';
+                playersList.forEach((p, idx) => {
+                    const initial = (p.name || '?').charAt(0).toUpperCase();
+                    const isEven = idx % 2 === 0;
+                    const badge = document.createElement('div');
+                    badge.className = 'inline-flex items-center gap-2 px-3 py-1.5 rounded-full border-2 border-wine bg-milk shadow-retro-sm';
+                    badge.innerHTML = `
+                        <span class="w-6 h-6 rounded-full ${isEven ? 'bg-wine text-milk' : 'bg-heavenly text-wine border border-wine'} font-serif font-black text-xs flex items-center justify-center">
+                            ${initial}
+                        </span>
+                        <span class="text-xs font-extrabold text-wine">${escapeHtml(p.name)}</span>
+                        ${p.id === room.hostId ? '<span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-heavenly text-wine">Host</span>' : ''}
+                    `;
+                    listEl.appendChild(badge);
+                });
+
+                // Categorías en lobby
+                document.querySelectorAll('.lobby-cat-btn').forEach(btn => {
+                    const selected = btn.dataset.cat === room.category;
+                    if (selected) {
+                        btn.classList.add('bg-heavenly', 'border-wine', 'shadow-retro-sm');
+                        btn.classList.remove('bg-milk', 'border-wine/30');
+                    } else {
+                        btn.classList.remove('bg-heavenly', 'border-wine', 'shadow-retro-sm');
+                        btn.classList.add('bg-milk', 'border-wine/30');
+                    }
+                    btn.disabled = !isHost;
+                });
+
+                document.getElementById('lobby-host-hint').textContent = isHost ? 'Elegís vos' : 'Elige el anfitrión';
+                document.getElementById('lobby-host-controls').classList.toggle('hidden', !isHost);
+                document.getElementById('lobby-guest-waiting').classList.toggle('hidden', isHost);
+                return;
+            }
+
+            // --- SI ESTÁ EN JUEGO ('playing') ---
+            showScreen('game');
+
+            const roomPool = Array.isArray(room.roomDeck) && room.roomDeck.length > 0 ? room.roomDeck : activeDeck;
+            const customCount = (room.customCards || []).length;
+            const cat = room.category || 'todas';
+            const totalCatCount = cat === 'todas'
+                ? roomPool.length + customCount
+                : roomPool.filter(c => c.category === cat).length + (room.customCards || []).filter(c => c.category === cat).length;
+
+            document.getElementById('game-room-badge').textContent = `SALA: ${room.code}`;
+            document.getElementById('game-round-text').textContent = `Carta ${room.roundNumber || 1} de ${(room.totalInDeck || totalCatCount).toLocaleString('es-AR')}`;
+            const myVote = votes[myPlayerId];
+
+            // Estado visual de los botones de voto del jugador
+            const btnFavor = document.getElementById('btn-vote-favor');
+            const btnContra = document.getElementById('btn-vote-contra');
+            const badgeMyFavor = document.getElementById('badge-my-favor');
+            const badgeMyContra = document.getElementById('badge-my-contra');
+
+            if (myVote === 'favor') {
+                btnFavor.classList.add('ring-4', 'ring-wine/40', 'scale-[1.02]');
+                btnContra.classList.remove('ring-4', 'ring-heavenly', 'scale-[1.02]');
+                btnContra.classList.add('opacity-70');
+                btnFavor.classList.remove('opacity-70');
+                badgeMyFavor.textContent = '✓ TU VOTO ACTUAL';
+                badgeMyContra.textContent = 'Cambiar voto';
+            } else if (myVote === 'contra') {
+                btnContra.classList.add('ring-4', 'ring-heavenly', 'scale-[1.02]');
+                btnFavor.classList.remove('ring-4', 'ring-wine/40', 'scale-[1.02]');
+                btnFavor.classList.add('opacity-70');
+                btnContra.classList.remove('opacity-70');
+                badgeMyContra.textContent = '✓ TU VOTO ACTUAL';
+                badgeMyFavor.textContent = 'Cambiar voto';
+            } else {
+                btnFavor.classList.remove('ring-4', 'ring-wine/40', 'scale-[1.02]', 'opacity-70');
+                btnContra.classList.remove('ring-4', 'ring-heavenly', 'scale-[1.02]', 'opacity-70');
+                badgeMyFavor.textContent = 'Tocar para votar';
+                badgeMyContra.textContent = 'Tocar para votar';
+            }
+
+            // Bloquear cambio de voto si ya se revelaron los resultados
+            btnFavor.disabled = Boolean(room.revealed);
+            btnContra.disabled = Boolean(room.revealed);
+
+            // Mostrar Zona A (Voto secreto en curso) vs Zona B (Resultados revelados)
+            const votingBox = document.getElementById('voting-status-box');
+            const revealedBox = document.getElementById('revealed-results-box');
+
+            if (!room.revealed) {
+                votingBox.classList.remove('hidden');
+                revealedBox.classList.add('hidden');
+
+                const votedCount = playersList.filter(p => Boolean(votes[p.id])).length;
+                document.getElementById('votes-progress-label').textContent = `${votedCount} de ${playersList.length} votaron`;
+
+                const avatarsRow = document.getElementById('voters-avatars-row');
+                avatarsRow.innerHTML = '';
+                playersList.forEach(p => {
+                    const hasVoted = Boolean(votes[p.id]);
+                    const chip = document.createElement('span');
+                    chip.className = `inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold border ${
+                        hasVoted
+                            ? 'bg-heavenly text-wine border-wine'
+                            : 'bg-milk text-wine/50 border-wine/30 border-dashed'
+                    }`;
+                    chip.innerHTML = `${hasVoted ? '✓' : '⏳'} ${escapeHtml(p.name)}`;
+                    avatarsRow.appendChild(chip);
+                });
+            } else {
+                votingBox.classList.add('hidden');
+                revealedBox.classList.remove('hidden');
+
+                const favorNames = [];
+                const contraNames = [];
+
+                playersList.forEach(p => {
+                    if (votes[p.id] === 'favor') favorNames.push(p.name);
+                    else if (votes[p.id] === 'contra') contraNames.push(p.name);
+                });
+
+                const total = favorNames.length + contraNames.length;
+                const favorPct = total === 0 ? 50 : Math.round((favorNames.length / total) * 100);
+                const contraPct = total === 0 ? 50 : 100 - favorPct;
+
+                document.getElementById('rev-favor-pct').textContent = `${favorPct}%`;
+                document.getElementById('rev-favor-num').textContent = favorNames.length;
+                document.getElementById('rev-contra-pct').textContent = `${contraPct}%`;
+                document.getElementById('rev-contra-num').textContent = contraNames.length;
+
+                document.getElementById('rev-favor-bar').style.width = `${favorPct}%`;
+                document.getElementById('rev-contra-bar').style.width = `${contraPct}%`;
+
+                document.getElementById('list-voted-favor').textContent = favorNames.length > 0 ? favorNames.join(', ') : 'Nadie';
+                document.getElementById('list-voted-contra').textContent = contraNames.length > 0 ? contraNames.join(', ') : 'Nadie';
+            }
+
+            // Controles del Anfitrión
+            const hostBar = document.getElementById('host-action-bar');
+            hostBar.classList.toggle('hidden', !isHost);
+            if (isHost) {
+                const btnReveal = document.getElementById('btn-reveal-votes');
+                btnReveal.disabled = Boolean(room.revealed);
+                btnReveal.textContent = room.revealed ? '✓ Votos Revelados' : '👁 Revelar Votos';
+            }
+
+            // Badge de rondas acumuladas en el botón de Compatibilidad
+            const historyCount = (room.history || []).length;
+            document.getElementById('compat-rounds-badge').textContent = `${historyCount} ${historyCount === 1 ? 'ronda' : 'rondas'}`;
+        }
+
+        /**
+         * 6. ACCIONES DE JUEGO EN FIRESTORE
+         */
+        async function castVote(choice) {
+            if (!currentRoomCode || !currentRoomData || currentRoomData.revealed) return;
+            playTone(choice);
+            try {
+                const roomRef = getRoomDocRef(currentRoomCode);
+                await updateDoc(roomRef, {
+                    [`votes.${myPlayerId}`]: choice,
+                    updatedAt: Date.now()
+                });
+            } catch (err) {
+                showToast('Error al registrar tu voto');
+            }
+        }
+
+        async function revealVotes() {
+            if (!currentRoomCode || !currentRoomData || currentRoomData.revealed) return;
+            playTone('reveal');
+
+            const card = currentRoomData.currentCard;
+            const currentVotes = currentRoomData.votes || {};
+
+            // Guardar ronda en el historial para el cálculo de compatibilidad
+            const roundRecord = {
+                round: currentRoomData.roundNumber || 1,
+                cardId: card.id,
+                question: card.text,
+                category: card.category,
+                votes: currentVotes
+            };
+
+            try {
+                const roomRef = getRoomDocRef(currentRoomCode);
+                await updateDoc(roomRef, {
+                    revealed: true,
+                    history: arrayUnion(roundRecord),
+                    updatedAt: Date.now()
+                });
+            } catch (err) {
+                showToast('Error al revelar votos');
+            }
+        }
+
+        async function nextCard() {
+            if (!currentRoomCode || !currentRoomData) return;
+            playTone('next');
+
+            // Si el host pasa de carta sin haber revelado antes, guardamos igual los votos emitidos si hay al menos 2 votos
+            const currentVotes = currentRoomData.votes || {};
+            const voteEntries = Object.keys(currentVotes);
+            let extraHistoryUpdate = {};
+
+            if (!currentRoomData.revealed && voteEntries.length >= 2) {
+                const card = currentRoomData.currentCard;
+                extraHistoryUpdate = {
+                    history: arrayUnion({
+                        round: currentRoomData.roundNumber || 1,
+                        cardId: card.id,
+                        question: card.text,
+                        category: card.category,
+                        votes: currentVotes
+                    })
+                };
+            }
+            const { chosen, resetUsed, totalInCategory } = pickNextCard(currentRoomData);
+            const nextUsed = resetUsed ? [chosen.id] : [...(currentRoomData.usedCardIds || []), chosen.id];
+
+            try {
+                const roomRef = getRoomDocRef(currentRoomCode);
+                await updateDoc(roomRef, {
+                    ...extraHistoryUpdate,
+                    roundNumber: resetUsed ? 1 : (currentRoomData.roundNumber || 1) + 1,
+                    totalInDeck: totalInCategory,
+                    currentCard: chosen,
+                    usedCardIds: nextUsed,
+                    votes: {},
+                    revealed: false,
+                    updatedAt: Date.now()
+                });
+            } catch (err) {
+                showToast('Error al pasar a la siguiente carta');
+            }
+        }
+
+        /**
+         * 7. MOTOR DE COMPATIBILIDAD DE RESPUESTAS
+         */
+        function computeCompatibility(room) {
+            const players = Object.values(room.players || {});
+            const history = [...(room.history || [])];
+
+            // Si la ronda actual ya fue revelada pero por algún motivo aún no está en history, evitar duplicar
+            // (revealVotes ya la agrega a history con arrayUnion)
+
+            if (history.length === 0 || players.length < 2) {
+                return { ready: false, rounds: history.length, playersCount: players.length };
+            }
+
+            const pairs = [];
+            const myAffinities = [];
+
+            for (let i = 0; i < players.length; i++) {
+                for (let j = i + 1; j < players.length; j++) {
+                    const pA = players[i];
+                    const pB = players[j];
+
+                    let common = 0;
+                    let matches = 0;
+
+                    history.forEach(round => {
+                        const vA = round.votes ? round.votes[pA.id] : null;
+                        const vB = round.votes ? round.votes[pB.id] : null;
+                        if (vA && vB) {
+                            common++;
+                            if (vA === vB) matches++;
+                        }
+                    });
+
+                    if (common > 0) {
+                        const pct = Math.round((matches / common) * 100);
+                        pairs.push({
+                            pA,
+                            pB,
+                            pct,
+                            matches,
+                            common
+                        });
+
+                        if (pA.id === myPlayerId) {
+                            myAffinities.push({ other: pB, pct, matches, common });
+                        } else if (pB.id === myPlayerId) {
+                            myAffinities.push({ other: pA, pct, matches, common });
+                        }
+                    }
+                }
+            }
+
+            if (pairs.length === 0) {
+                return { ready: false, rounds: history.length, playersCount: players.length };
+            }
+
+            // Ordenar pares de mayor a menor % de coincidencia
+            pairs.sort((a, b) => b.pct - a.pct || b.common - a.common);
+            myAffinities.sort((a, b) => b.pct - a.pct || b.common - a.common);
+
+            const supremeMatch = pairs[0];
+            const oppositePoles = pairs[pairs.length - 1];
+
+            return {
+                ready: true,
+                rounds: history.length,
+                supremeMatch,
+                oppositePoles,
+                myAffinities
+            };
+        }
+
+        function openCompatibilityModal() {
+            const modal = document.getElementById('modal-compatibility');
+            const body = document.getElementById('compat-body');
+            const subtitle = document.getElementById('compat-subtitle');
+
+            if (!currentRoomData) return;
+
+            const stats = computeCompatibility(currentRoomData);
+            subtitle.textContent = `Analizadas ${stats.rounds} ${stats.rounds === 1 ? 'ronda revelada' : 'rondas reveladas'}`;
+
+            if (!stats.ready) {
+                body.innerHTML = `
+                    <div class="text-center py-8 space-y-3">
+                        <div class="w-14 h-14 rounded-2xl bg-heavenly border-2 border-wine flex items-center justify-center font-serif font-black text-2xl text-wine mx-auto shadow-retro-sm">
+                            ♥
+                        </div>
+                        <h4 class="font-serif font-black text-xl text-wine">Todavía faltan votos</h4>
+                        <p class="text-xs font-medium text-wine/80 max-w-xs mx-auto leading-relaxed">
+                            Para calcular quiénes son almas gemelas en la previa, necesitan al menos <strong>2 jugadores</strong> conectados y <strong>1 carta con votos revelados</strong>.
+                        </p>
+                    </div>
+                `;
+            } else {
+                const { supremeMatch, oppositePoles, myAffinities } = stats;
+
+                let personalHtml = '';
+                if (myAffinities.length === 0) {
+                    personalHtml = `<p class="text-xs text-wine/70 font-medium">Votá en la próxima ronda para ver tu afinidad con los demás.</p>`;
+                } else {
+                    personalHtml = myAffinities.map(item => `
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between text-xs font-extrabold text-wine">
+                                <span>${escapeHtml(item.other.name)}</span>
+                                <span>${item.pct}% <span class="text-[10px] font-semibold text-wine/65">(${item.matches}/${item.common})</span></span>
+                            </div>
+                            <div class="w-full h-3.5 bg-milk rounded-full overflow-hidden border-2 border-wine">
+                                <div class="h-full ${item.pct >= 50 ? 'bg-heavenly' : 'bg-wine'} transition-all duration-500" style="width: ${item.pct}%"></div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                body.innerHTML = `
+                    <!-- MATCH SUPREMO -->
+                    <div class="bg-heavenly border-2 border-wine rounded-2xl p-4 shadow-retro-sm space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-wine text-milk">
+                                ★ Match Supremo (Almas Gemelas)
+                            </span>
+                            <span class="font-serif font-black text-2xl text-wine">${supremeMatch.pct}%</span>
+                        </div>
+                        <div class="font-serif font-black text-xl text-wine pt-1">
+                            ${escapeHtml(supremeMatch.pA.name)} & ${escapeHtml(supremeMatch.pB.name)}
+                        </div>
+                        <p class="text-[11px] font-bold text-wine/80">
+                            Coincidieron en ${supremeMatch.matches} de ${supremeMatch.common} ${supremeMatch.common === 1 ? 'dilema' : 'dilemas'}.
+                        </p>
+                    </div>
+
+                    <!-- POLOS OPUESTOS -->
+                    <div class="bg-wine text-milk border-2 border-wine rounded-2xl p-4 shadow-retro-sm space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-milk text-wine">
+                                ⚡ Polos Opuestos (Choque Asegurado)
+                            </span>
+                            <span class="font-serif font-black text-2xl text-heavenly">${oppositePoles.pct}%</span>
+                        </div>
+                        <div class="font-serif font-black text-xl text-milk pt-1">
+                            ${escapeHtml(oppositePoles.pA.name)} & ${escapeHtml(oppositePoles.pB.name)}
+                        </div>
+                        <p class="text-[11px] font-bold text-heavenly">
+                            Solo coincidieron en ${oppositePoles.matches} de ${oppositePoles.common} ${oppositePoles.common === 1 ? 'dilema' : 'dilemas'}.
+                        </p>
+                    </div>
+
+                    <!-- TU COMPATIBILIDAD PERSONAL -->
+                    <div class="bg-milk border-2 border-wine rounded-2xl p-4 space-y-3">
+                        <div class="border-b-2 border-wine/15 pb-2 flex items-center justify-between">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-wine">Tu afinidad personal (${escapeHtml(myPlayerName)})</span>
+                        </div>
+                        <div class="space-y-3">
+                            ${personalHtml}
+                        </div>
+                    </div>
+                `;
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        /**
+         * 8. MODO LOCAL PASS & PLAY (UN SOLO CELULAR CON FISHER-YATES SIN REPETICIONES)
+         */
+        function startLocalMode(category = 'todas') {
+            const filtered = category === 'todas'
+                ? activeDeck
+                : activeDeck.filter(c => c.category === category);
+            localDeck = fisherYatesShuffle(filtered.length > 0 ? filtered : activeDeck);
+            localIdx = 0;
+            const sel = document.getElementById('local-cat-select');
+            if (sel) sel.value = category;
+            renderLocalCard();
+            showScreen('local');
+        }
+
+        function renderLocalCard() {
+            if (localIdx >= localDeck.length) {
+                localDeck = fisherYatesShuffle(localDeck);
+                localIdx = 0;
+                showToast('¡Completaste todo el mazo! Mezclando de nuevo...');
+            }
+            const c = localDeck[localIdx];
+            localVotes = { favor: 0, contra: 0 };
+            document.getElementById('local-progress-text').textContent = `Carta ${(localIdx + 1).toLocaleString('es-AR')} de ${localDeck.length.toLocaleString('es-AR')}`;
+            document.getElementById('local-cat-badge').textContent = CATEGORY_LABELS[c.category] || 'DILEMA';
+            document.getElementById('local-question').textContent = c.text;
+            updateLocalVotes();
+        }
+
+        function updateLocalVotes() {
+            const total = localVotes.favor + localVotes.contra;
+            document.getElementById('local-favor-count').textContent = localVotes.favor;
+            document.getElementById('local-contra-count').textContent = localVotes.contra;
+            const pct = total === 0 ? 50 : Math.round((localVotes.favor / total) * 100);
+            document.getElementById('local-favor-bar').style.width = `${pct}%`;
+            document.getElementById('local-contra-bar').style.width = `${100 - pct}%`;
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        /**
+         * 9. LISTENERS E INICIALIZACIÓN
+         */
+        document.getElementById('btn-create-room').addEventListener('click', createRoom);
+        document.getElementById('btn-join-room').addEventListener('click', joinRoom);
+        document.getElementById('btn-start-local').addEventListener('click', startLocalMode);
+
+        document.getElementById('btn-home').addEventListener('click', () => {
+            if (unsubscribeRoom) unsubscribeRoom();
+            currentRoomCode = null;
+            currentRoomData = null;
+            document.getElementById('header-subtitle').textContent = 'Edición Previa • Multijugador';
+            showScreen('home');
+        });
+
+        // Lobby: Copiar código y Compartir link
+        document.getElementById('btn-copy-code').addEventListener('click', () => {
+            if (!currentRoomCode) return;
+            copyTextFallback(currentRoomCode);
+            showToast(`Código ${currentRoomCode} copiado`);
+        });
+
+        document.getElementById('btn-share-link').addEventListener('click', () => {
+            if (!currentRoomCode) return;
+            const url = new URL(window.location.href);
+            url.searchParams.set('sala', currentRoomCode);
+            const shareUrl = url.toString();
+
+            if (navigator.share) {
+                navigator.share({
+                    title: '¿A Favor o En Contra? — Edición Previa',
+                    text: `¡Sumate a debatir! Entrá con el código ${currentRoomCode}:`,
+                    url: shareUrl
+                }).catch(() => {});
+            } else {
+                copyTextFallback(shareUrl);
+                showToast('¡Link de invitación copiado!');
+            }
+        });
+
+        function copyTextFallback(text) {
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            try { document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(temp);
+        }
+
+        // Lobby: Selección de categoría (solo host)
+        document.querySelectorAll('.lobby-cat-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                if (!currentRoomCode || !currentRoomData || currentRoomData.hostId !== myPlayerId) return;
+                playTone('next');
+                const roomRef = getRoomDocRef(currentRoomCode);
+                await updateDoc(roomRef, { category: btn.dataset.cat });
+            });
+        });
+
+        // Lobby: Empezar partida (solo host)
+        document.getElementById('btn-lobby-start').addEventListener('click', async () => {
+            if (!currentRoomCode || !currentRoomData || currentRoomData.hostId !== myPlayerId) return;
+            const { chosen, totalInCategory } = pickNextCard(currentRoomData);
+            playTone('reveal');
+            const roomRef = getRoomDocRef(currentRoomCode);
+            await updateDoc(roomRef, {
+                status: 'playing',
+                roundNumber: 1,
+                totalInDeck: totalInCategory,
+                currentCard: chosen,
+                usedCardIds: [chosen.id],
+                votes: {},
+                revealed: false
+            });
+        });
+
+        // Juego: Votar, Revelar y Siguiente
+        document.getElementById('btn-vote-favor').addEventListener('click', () => castVote('favor'));
+        document.getElementById('btn-vote-contra').addEventListener('click', () => castVote('contra'));
+        document.getElementById('btn-reveal-votes').addEventListener('click', revealVotes);
+        document.getElementById('btn-next-card').addEventListener('click', nextCard);
+
+        // Compatibilidad Modal
+        document.getElementById('btn-open-compatibility').addEventListener('click', openCompatibilityModal);
+        document.getElementById('btn-header-compat').addEventListener('click', openCompatibilityModal);
+        const closeCompat = () => {
+            document.getElementById('modal-compatibility').classList.add('hidden');
+            document.getElementById('modal-compatibility').classList.remove('flex');
+        };
+        document.getElementById('btn-close-compat').addEventListener('click', closeCompat);
+        document.getElementById('btn-done-compat').addEventListener('click', closeCompat);
+
+        // Modal Agregar Dilema
+        const modalCustom = document.getElementById('modal-custom-card');
+        document.getElementById('btn-open-custom').addEventListener('click', () => {
+            modalCustom.classList.remove('hidden');
+            modalCustom.classList.add('flex');
+            document.getElementById('custom-text').focus();
+        });
+        const closeCustom = () => {
+            modalCustom.classList.add('hidden');
+            modalCustom.classList.remove('flex');
+            document.getElementById('custom-text').value = '';
+        };
+        document.getElementById('btn-close-custom').addEventListener('click', closeCustom);
+        document.getElementById('btn-cancel-custom').addEventListener('click', closeCustom);
+
+        document.getElementById('form-custom-card').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = document.getElementById('custom-text').value.trim();
+            const category = document.getElementById('custom-category').value;
+            if (!text || !currentRoomCode) return;
+
+            const newCard = {
+                id: 'custom_' + Date.now(),
+                category,
+                text,
+                isCustom: true
+            };
+
+            try {
+                const roomRef = getRoomDocRef(currentRoomCode);
+                await updateDoc(roomRef, {
+                    customCards: arrayUnion(newCard),
+                    currentCard: newCard,
+                    votes: {},
+                    revealed: false,
+                    roundNumber: (currentRoomData.roundNumber || 1) + 1
+                });
+                playTone('reveal');
+                closeCustom();
+                showToast('¡Tu dilema ya está en pantalla para todos!');
+            } catch (err) {
+                showToast('Error al agregar dilema');
+            }
+        });
+
+        // Modal Reglas
+        const modalRules = document.getElementById('modal-rules');
+        document.getElementById('btn-open-rules').addEventListener('click', () => {
+            modalRules.classList.remove('hidden');
+            modalRules.classList.add('flex');
+        });
+        const closeRules = () => {
+            modalRules.classList.add('hidden');
+            modalRules.classList.remove('flex');
+        };
+        document.getElementById('btn-close-rules').addEventListener('click', closeRules);
+        document.getElementById('btn-got-it-rules').addEventListener('click', closeRules);
+
+        // Toggle Sonido
+        document.getElementById('btn-sound').addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            document.getElementById('icon-sound-on').classList.toggle('hidden', !soundEnabled);
+            document.getElementById('icon-sound-off').classList.toggle('hidden', soundEnabled);
+            if (soundEnabled) playTone('next');
+        });
+
+        // Listeners Modo Local Pass & Play
+        document.getElementById('local-cat-select').addEventListener('change', (e) => {
+            startLocalMode(e.target.value);
+            playTone('next');
+        });
+        document.getElementById('btn-local-favor').addEventListener('click', () => {
+            localVotes.favor++;
+            updateLocalVotes();
+            playTone('favor');
+        });
+        document.getElementById('btn-local-contra').addEventListener('click', () => {
+            localVotes.contra++;
+            updateLocalVotes();
+            playTone('contra');
+        });
+        document.getElementById('btn-local-next').addEventListener('click', () => {
+            if (!localDeck.length) { startLocalMode(); return; }
+            localIdx++;
+            renderLocalCard();
+            playTone('next');
+        });
+
+        /**
+         * 10. GESTOR / EDITOR DE TÓPICOS (+1.080) CON PAGINACIÓN, BÚSQUEDA, EDICIÓN INLINE E IMPORT/EXPORT
+         */
+        let mgrSearchQuery = '';
+        let mgrFilterCategory = 'todas';
+        let mgrCurrentPage = 1;
+        const MGR_PAGE_SIZE = 25;
+        let mgrEditingId = null;
+
+        function getFilteredManagerTopics() {
+            const q = mgrSearchQuery.trim().toLowerCase();
+            return activeDeck.filter(item => {
+                const matchCat = mgrFilterCategory === 'todas' || item.category === mgrFilterCategory;
+                const matchText = !q || item.text.toLowerCase().includes(q);
+                return matchCat && matchText;
+            });
+        }
+
+        function renderManagerList() {
+            const container = document.getElementById('mgr-list-container');
+            const subtitle = document.getElementById('mgr-subtitle');
+            const pageInfo = document.getElementById('mgr-page-info');
+            const btnPrev = document.getElementById('btn-mgr-prev-page');
+            const btnNext = document.getElementById('btn-mgr-next-page');
+
+            subtitle.textContent = `${activeDeck.length.toLocaleString('es-AR')} tópicos únicos activos • Sin repeticiones`;
+
+            const filtered = getFilteredManagerTopics();
+            const totalPages = Math.max(1, Math.ceil(filtered.length / MGR_PAGE_SIZE));
+            if (mgrCurrentPage > totalPages) mgrCurrentPage = totalPages;
+            if (mgrCurrentPage < 1) mgrCurrentPage = 1;
+
+            const startIdx = (mgrCurrentPage - 1) * MGR_PAGE_SIZE;
+            const pageItems = filtered.slice(startIdx, startIdx + MGR_PAGE_SIZE);
+
+            pageInfo.textContent = `Página ${mgrCurrentPage} de ${totalPages} (${filtered.length.toLocaleString('es-AR')} tópicos)`;
+            btnPrev.disabled = mgrCurrentPage <= 1;
+            btnNext.disabled = mgrCurrentPage >= totalPages;
+
+            if (pageItems.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 space-y-2">
+                        <p class="font-serif font-black text-lg text-wine">No hay tópicos con ese filtro</p>
+                        <p class="text-xs text-wine/70">Probá con otra palabra clave o agregá uno nuevo arriba.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            pageItems.forEach((item, idx) => {
+                const absoluteNumber = startIdx + idx + 1;
+                const card = document.createElement('div');
+                card.className = 'bg-milk border-2 border-wine rounded-xl p-3 shadow-retro-sm transition';
+
+                if (mgrEditingId === item.id) {
+                    card.innerHTML = `
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-[10px] font-black uppercase text-wine/70">Editando tópico #${absoluteNumber}</span>
+                                <select data-edit-cat="${item.id}" class="px-2 py-1 rounded-lg bg-milk border border-wine text-[11px] font-extrabold text-wine">
+                                    <option value="pareja" ${item.category === 'pareja' ? 'selected' : ''}>Pareja e Infidelidad</option>
+                                    <option value="amistad" ${item.category === 'amistad' ? 'selected' : ''}>Amistad y Códigos</option>
+                                    <option value="redes" ${item.category === 'redes' ? 'selected' : ''}>Redes y Tecnología</option>
+                                    <option value="salidas" ${item.category === 'salidas' ? 'selected' : ''}>Salidas, Previa y Citas</option>
+                                    <option value="cotidiano" ${item.category === 'cotidiano' ? 'selected' : ''}>Cotidianos y Plata</option>
+                                    <option value="valores" ${item.category === 'valores' ? 'selected' : ''}>Vida, Familia y Valores</option>
+                                </select>
+                            </div>
+                            <textarea data-edit-text="${item.id}" rows="2" class="w-full px-3 py-2 rounded-lg bg-heavenly/20 border-2 border-wine text-xs font-bold text-wine focus:outline-none resize-none">${escapeHtml(item.text)}</textarea>
+                            <div class="flex justify-end gap-2">
+                                <button data-action="cancel-edit" class="px-2.5 py-1 rounded-lg bg-milk border border-wine text-[11px] font-extrabold text-wine">Cancelar</button>
+                                <button data-action="save-edit" data-id="${item.id}" class="px-3 py-1 rounded-lg bg-wine text-milk border border-wine text-[11px] font-extrabold">Guardar</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between gap-2.5">
+                            <div class="space-y-1 flex-1 min-w-0">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="text-[10px] font-black text-wine/60">#${absoluteNumber}</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-heavenly text-wine border border-wine">
+                                        ${CATEGORY_LABELS[item.category] || item.category}
+                                    </span>
+                                </div>
+                                <p class="text-xs sm:text-sm font-bold text-wine leading-snug break-words">${escapeHtml(item.text)}</p>
+                            </div>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button data-action="start-edit" data-id="${item.id}" title="Editar" class="px-2 py-1 rounded-lg bg-heavenly/60 hover:bg-heavenly text-wine border border-wine text-[11px] font-extrabold">
+                                    ✎
+                                </button>
+                                <button data-action="delete-topic" data-id="${item.id}" title="Eliminar" class="px-2 py-1 rounded-lg bg-milk hover:bg-wine hover:text-milk text-wine border border-wine text-[11px] font-extrabold transition">
+                                    🗑
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                container.appendChild(card);
+            });
+        }
+
+        // Abrir / Cerrar Gestor de Tópicos
+        const modalManager = document.getElementById('modal-topic-manager');
+        document.getElementById('btn-open-manager').addEventListener('click', () => {
+            mgrCurrentPage = 1;
+            mgrEditingId = null;
+            renderManagerList();
+            modalManager.classList.remove('hidden');
+            modalManager.classList.add('flex');
+        });
+        document.getElementById('btn-close-manager').addEventListener('click', () => {
+            modalManager.classList.add('hidden');
+            modalManager.classList.remove('flex');
+        });
+
+        // Búsqueda y Filtro en tiempo real
+        document.getElementById('mgr-search').addEventListener('input', (e) => {
+            mgrSearchQuery = e.target.value;
+            mgrCurrentPage = 1;
+            renderManagerList();
+        });
+        document.getElementById('mgr-filter-cat').addEventListener('change', (e) => {
+            mgrFilterCategory = e.target.value;
+            mgrCurrentPage = 1;
+            renderManagerList();
+        });
+
+        // Paginación
+        document.getElementById('btn-mgr-prev-page').addEventListener('click', () => {
+            if (mgrCurrentPage > 1) {
+                mgrCurrentPage--;
+                renderManagerList();
+                document.getElementById('mgr-list-container').scrollTop = 0;
+            }
+        });
+        document.getElementById('btn-mgr-next-page').addEventListener('click', () => {
+            mgrCurrentPage++;
+            renderManagerList();
+            document.getElementById('mgr-list-container').scrollTop = 0;
+        });
+
+        // Delegación de eventos en la lista (Editar / Guardar / Eliminar)
+        document.getElementById('mgr-list-container').addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-action]');
+            if (!btn) return;
+            const action = btn.dataset.action;
+            const id = btn.dataset.id;
+
+            if (action === 'start-edit') {
+                mgrEditingId = id;
+                renderManagerList();
+            } else if (action === 'cancel-edit') {
+                mgrEditingId = null;
+                renderManagerList();
+            } else if (action === 'save-edit') {
+                const textarea = document.querySelector(`textarea[data-edit-text="${id}"]`);
+                const select = document.querySelector(`select[data-edit-cat="${id}"]`);
+                if (!textarea || !select) return;
+                const newText = textarea.value.trim();
+                if (!newText) {
+                    showToast('El texto no puede quedar vacío');
+                    return;
+                }
+                const idx = activeDeck.findIndex(t => t.id === id);
+                if (idx !== -1) {
+                    activeDeck[idx].text = newText;
+                    activeDeck[idx].category = select.value;
+                    saveActiveDeck();
+                    mgrEditingId = null;
+                    renderManagerList();
+                    showToast('Tópico actualizado');
+                }
+            } else if (action === 'delete-topic') {
+                if (activeDeck.length <= 5) {
+                    showToast('Dejá al menos 5 tópicos en el mazo');
+                    return;
+                }
+                activeDeck = activeDeck.filter(t => t.id !== id);
+                saveActiveDeck();
+                renderManagerList();
+                showToast('Tópico eliminado');
+            }
+        });
+
+        // Panel Agregar Nuevos Tópicos (1 o varios por salto de línea)
+        const addPanel = document.getElementById('mgr-add-panel');
+        document.getElementById('btn-mgr-toggle-add').addEventListener('click', () => {
+            addPanel.classList.toggle('hidden');
+            if (!addPanel.classList.contains('hidden')) {
+                document.getElementById('mgr-add-textarea').focus();
+            }
+        });
+        document.getElementById('btn-mgr-cancel-add').addEventListener('click', () => {
+            addPanel.classList.add('hidden');
+            document.getElementById('mgr-add-textarea').value = '';
+        });
+        document.getElementById('btn-mgr-save-add').addEventListener('click', () => {
+            const rawText = document.getElementById('mgr-add-textarea').value;
+            const cat = document.getElementById('mgr-add-cat').value;
+            const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+
+            if (lines.length === 0) {
+                showToast('Escribí al menos un tópico para agregar');
+                return;
+            }
+
+            const existingSet = new Set(activeDeck.map(t => t.text.toLowerCase()));
+            let addedCount = 0;
+
+            for (const line of lines) {
+                if (!existingSet.has(line.toLowerCase())) {
+                    existingSet.add(line.toLowerCase());
+                    activeDeck.unshift({
+                        id: 'u_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                        category: cat,
+                        text: line
+                    });
+                    addedCount++;
+                }
+            }
+
+            saveActiveDeck();
+            document.getElementById('mgr-add-textarea').value = '';
+            addPanel.classList.add('hidden');
+            mgrCurrentPage = 1;
+            renderManagerList();
+            showToast(addedCount > 0 ? `Se agregaron ${addedCount} tópicos nuevos` : 'Esos tópicos ya existían en el mazo');
+        });
+
+        // Exportar Mazo (.json)
+        document.getElementById('btn-mgr-export').addEventListener('click', () => {
+            const blob = new Blob([JSON.stringify(activeDeck, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mazo-afavor-encontra-${activeDeck.length}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Mazo exportado en .JSON');
+        });
+
+        // Importar Mazo (.json)
+        document.getElementById('input-mgr-import').addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    const imported = JSON.parse(ev.target.result);
+                    if (!Array.isArray(imported)) throw new Error('Formato inválido');
+
+                    const validCategories = new Set(Object.keys(CATEGORY_LABELS));
+                    const seen = new Set();
+                    const cleaned = [];
+
+                    for (const item of imported) {
+                        if (item && typeof item.text === 'string' && item.text.trim()) {
+                            const text = item.text.trim();
+                            const key = text.toLowerCase();
+                            if (!seen.has(key)) {
+                                seen.add(key);
+                                cleaned.push({
+                                    id: item.id || ('imp_' + cleaned.length + '_' + Date.now()),
+                                    category: validCategories.has(item.category) ? item.category : 'cotidiano',
+                                    text
+                                });
+                            }
+                        }
+                    }
+
+                    if (cleaned.length === 0) {
+                        showToast('El archivo no contiene tópicos válidos');
+                        return;
+                    }
+
+                    activeDeck = cleaned;
+                    saveActiveDeck();
+                    mgrCurrentPage = 1;
+                    renderManagerList();
+                    showToast(`¡Importados ${cleaned.length.toLocaleString('es-AR')} tópicos únicos!`);
+                } catch (err) {
+                    showToast('Error al leer el archivo JSON');
+                }
+                e.target.value = '';
+            };
+            reader.readAsText(file);
+        });
+
+        // Restaurar Mazo Original
+        const restoreBox = document.getElementById('mgr-restore-confirm');
+        document.getElementById('btn-mgr-restore').addEventListener('click', () => {
+            restoreBox.classList.remove('hidden');
+        });
+        document.getElementById('btn-mgr-restore-no').addEventListener('click', () => {
+            restoreBox.classList.add('hidden');
+        });
+        document.getElementById('btn-mgr-restore-yes').addEventListener('click', () => {
+            localStorage.removeItem(STORAGE_DECK_KEY);
+            activeDeck = MASTER_DEFAULT_DECK.map(item => ({ ...item }));
+            restoreBox.classList.add('hidden');
+            mgrCurrentPage = 1;
+            renderManagerList();
+            refreshDeckCountersUI();
+            showToast(`Mazo original restaurado (${activeDeck.length.toLocaleString('es-AR')} tópicos)`);
+        });
+
+        // Auto-completar nombre guardado y código de sala si viene en la URL (?sala=XXXX)
+        window.addEventListener('DOMContentLoaded', async () => {
+            refreshDeckCountersUI();
+            if (myPlayerName) {
+                document.getElementById('input-player-name').value = myPlayerName;
+            }
+            const params = new URLSearchParams(window.location.search);
+            const salaParam = params.get('sala');
+            if (salaParam && salaParam.length === 4) {
+                document.getElementById('input-room-code').value = salaParam.toUpperCase();
+            }
+            await initFirebase();
+        });
+    </script>
+</body>
+</html>
